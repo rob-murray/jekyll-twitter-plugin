@@ -60,10 +60,10 @@ $ wget https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/master
 
 Your Twitter application authentication credentials are private - do not distribute these! As such this plugin requires your credentials as Environment variables, it requires the following keys to be set;
 
-* **TWITTER_CONSUMER_KEY**
-* **TWITTER_CONSUMER_SECRET**
-* **TWITTER_ACCESS_TOKEN**
-* **TWITTER_ACCESS_TOKEN_SECRET**
+* TWITTER_CONSUMER_KEY
+* TWITTER_CONSUMER_SECRET
+* TWITTER_ACCESS_TOKEN
+* TWITTER_ACCESS_TOKEN_SECRET
 
 ```bash
 $ export TWITTER_CONSUMER_KEY=foo etc.
