@@ -99,7 +99,7 @@ module TwitterJekyll
     def initialize(_name, params, _tokens)
       super
       @params  = params.split(/\s+/).map(&:strip)
-      @cache   = FileCache.new('../.tweet-cache')
+      @cache   = FileCache.new('./.tweet-cache')
 
       create_twitter_rest_client
     end
