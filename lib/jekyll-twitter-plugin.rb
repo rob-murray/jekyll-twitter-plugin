@@ -7,7 +7,7 @@ require 'twitter'
 module TwitterJekyll
   class FileCache
     def initialize(path)
-      @cache_folder   = File.expand_path path, File.dirname(__FILE__)
+      @cache_folder   = File.expand_path path
       FileUtils.mkdir_p @cache_folder
     end
 
