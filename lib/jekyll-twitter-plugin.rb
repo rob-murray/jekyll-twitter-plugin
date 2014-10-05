@@ -38,7 +38,9 @@ module TwitterJekyll
 
   class NullCache
     def initialize; end
+
     def read(_key); end
+
     def write(_key, _data); end
   end
 
@@ -53,7 +55,7 @@ module TwitterJekyll
   module TwitterApiMixin
     def id_from_status_url(url)
       if url.to_s =~ /([^\/]+$)/
-        $1
+        Regexp.last_match[1]
       end
     end
 
@@ -90,6 +92,7 @@ module TwitterJekyll
 
   class UnknownTypeClient
     def fetch; end
+
     def cache_key; end
   end
 
@@ -104,7 +107,7 @@ module TwitterJekyll
       create_twitter_rest_client
     end
 
-    def render(context)
+    def render(_context)
       api_type = @params.first
       tweet_params  = @params.last
 
@@ -166,4 +169,3 @@ end
 
 Liquid::Template.register_tag('twitter', TwitterJekyll::TwitterTag)
 Liquid::Template.register_tag('twitternocache', TwitterJekyll::TwitterTagNoCache)
-
