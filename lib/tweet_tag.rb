@@ -1,5 +1,9 @@
 require 'twitter'
 
+##
+# A Liquid tag plugin for Jekyll that renders Tweets from Twitter API.
+# https://github.com/rob-murray/jekyll-twitter-plugin
+#
 module TwitterJekyll
   class FileCache
     def initialize(path)
@@ -16,7 +20,7 @@ module TwitterJekyll
       file_to_write = cache_file(cache_filename(key))
       data_to_write = JSON.generate data.to_h
 
-      File.open(file_to_write, "w") do |f|
+      File.open(file_to_write, 'w') do |f|
         f.write(data_to_write)
       end
     end
@@ -38,26 +42,20 @@ module TwitterJekyll
     def write(_key, _data); end
   end
 
-  class Oembed
-    def initialize(client, params)
-      @client = client
-      @params = params
-    end
-
-    def fetch
-      if @params.to_s =~ /([^\/]+$)/
-        tweet_id = $1
-      end
-
-      tweet = find_tweet(tweet_id)
-      @client.oembed tweet if tweet
-    end
-
+  module Cacheable
     def cache_key
-      Digest::MD5.hexdigest("#{self.class.name}-#{@params}")
+      Digest::MD5.hexdigest("#{self.class.name}-#{key}")
     end
 
-    private
+    def key; end
+  end
+
+  module TwitterApiMixin
+    def id_from_status_url(url)
+      if url.to_s =~ /([^\/]+$)/
+        $1
+      end
+    end
 
     def find_tweet(id)
       return unless id
@@ -68,63 +66,88 @@ module TwitterJekyll
     end
   end
 
-  class UnknownTagFetcher
+  class Oembed
+    include TwitterJekyll::TwitterApiMixin
+    include TwitterJekyll::Cacheable
+
+    def initialize(client, params)
+      @client = client
+      @status_url = params
+    end
+
+    def fetch
+      tweet_id = id_from_status_url(@status_url)
+
+      if tweet = find_tweet(tweet_id)
+        @client.oembed tweet
+      end
+    end
+
+    def key
+      @status_url
+    end
+  end
+
+  class UnknownTypeClient
     def fetch; end
     def cache_key; end
   end
 
   class TwitterTag < Liquid::Tag
-    ERROR_BODY_TEXT = "Tweet could not be processed"
+    ERROR_BODY_TEXT = 'Tweet could not be processed'
 
     def initialize(_name, params, _tokens)
       super
       @params  = params.split(/\s+/).map(&:strip)
-      @cache   = FileCache.new("../.tweet-cache")
+      @cache   = FileCache.new('../.tweet-cache')
 
-      create_client
+      create_twitter_rest_client
     end
 
     def render(context)
-      type = @params.first
+      api_type = @params.first
       tweet_params  = @params.last
 
-      klass_name = type.capitalize
-      if TwitterJekyll.const_defined?(klass_name)
-        fetcher_klass = TwitterJekyll.const_get(klass_name)
-        fetcher = fetcher_klass.new(@client, tweet_params)
-      else
-        fetcher = UnknownTagFetcher.new
-      end
-
-      html_output_for(fetcher, tweet_params)
+      api_client = create_api_client(api_type, tweet_params)
+      html_output_for(api_client)
     end
 
     private
 
-    def html_output_for(fetcher, tweet_params)
+    def html_output_for(api_client)
       body = ERROR_BODY_TEXT
 
-      if response = cached_response(fetcher) || live_response(fetcher)
+      if response = cached_response(api_client) || live_response(api_client)
         body = response.html || body
       end
 
       "<div class='embed twitter'>#{body}</div>"
     end
 
-    def live_response(fetcher)
-      if response = fetcher.fetch
-        @cache.write(fetcher.cache_key, response)
+    def live_response(api_client)
+      if response = api_client.fetch
+        @cache.write(api_client.cache_key, response)
         response
       end
     end
 
-    def cached_response(fetcher)
-      response = @cache.read(fetcher.cache_key)
+    def cached_response(api_client)
+      response = @cache.read(api_client.cache_key)
       OpenStruct.new(response) unless response.nil?
     end
 
-    def create_client
-      @client = Twitter::REST::Client.new do |config|
+    def create_api_client(api_type, params)
+      klass_name = api_type.capitalize
+      if TwitterJekyll.const_defined?(klass_name)
+        api_client_klass = TwitterJekyll.const_get(klass_name)
+        api_client_klass.new(@twitter_client, params)
+      else
+        UnknownTypeClient.new
+      end
+    end
+
+    def create_twitter_rest_client
+      @twitter_client = Twitter::REST::Client.new do |config|
         config.consumer_key        = ENV.fetch('twitter_consumer_key')
         config.consumer_secret     = ENV.fetch('twitter_consumer_secret')
         config.access_token        = ENV.fetch('twitter_access_token')
@@ -143,3 +166,4 @@ end
 
 Liquid::Template.register_tag('twitter', TwitterJekyll::TwitterTag)
 Liquid::Template.register_tag('twitternocache', TwitterJekyll::TwitterTagNoCache)
+
