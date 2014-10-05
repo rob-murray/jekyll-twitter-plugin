@@ -1,16 +1,14 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'jekyll/twitter/plugin/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "jekyll-twitter-plugin"
-  spec.version       = Jekyll::Twitter::Plugin::VERSION
+  spec.version       = '0.0.1'
   spec.authors       = ["Rob Murray"]
   spec.email         = ["robmurray17@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = %q{A Liquid tag plugin for Jekyll that renders Tweets from Twitter API}
+  spec.homepage      = "https://github.com/rob-murray/jekyll-twitter-plugin"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
