@@ -73,7 +73,7 @@ $ export TWITTER_CONSUMER_KEY=foo etc.
 
 To use the plugin, in your source content use the tag `twitter` and then pass additional parameters to the plugin.
 
-```ruby
+```liquid
 {% plugin_type api_type params %}
 ```
 
@@ -89,7 +89,7 @@ The following Twitter APIs are supported.
 
 The [oembed](https://dev.twitter.com/rest/reference/get/statuses/oembed) API returns html snippet to embed in your app, this will be rendered in the familiar Twitter style.
 
-```ruby
+```liquid
 {% twitter oembed status_url %}
 # Example
 {% twitter oembed https://twitter.com/rubygems/status/518821243320287232 %}
