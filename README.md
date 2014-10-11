@@ -74,12 +74,12 @@ $ export TWITTER_CONSUMER_KEY=foo etc.
 To use the plugin, in your source content use the tag `twitter` and then pass additional parameters to the plugin.
 
 ```ruby
-{% plugin_type api_type params %}
+{% plugin_type api_type *params %}
 ```
 
 * `plugin_type` - Either `twitter` or `twitternocache`.
 * `api_type` - The Twitter API to use, check below for supported APIs.
-* `params` - Parameters for the API separated by spaces.
+* `*params` - Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters.
 
 ### Supported Twitter APIs
 
@@ -90,9 +90,11 @@ The following Twitter APIs are supported.
 The [oembed](https://dev.twitter.com/rest/reference/get/statuses/oembed) API returns html snippet to embed in your app, this will be rendered in the familiar Twitter style.
 
 ```ruby
-{% twitter oembed status_url %}
+{% twitter oembed status_url *options %}
 # Example
 {% twitter oembed https://twitter.com/rubygems/status/518821243320287232 %}
+# With options
+{% twitter oembed https://twitter.com/rubygems/status/518821243320287232 align='right' width='350' %}
 ```
 
 ### Output
