@@ -9,7 +9,7 @@ A Liquid tag plugin for Jekyll that renders Tweets from Twitter API.
 
 A Liquid tag plugin for [Jekyll](http://jekyllrb.com/) that enables Twitter content to be used in any content served by Jekyll, content is fetched from the [Twitter API](https://dev.twitter.com/home).
 
-It is based on the original Jekyll Tweet Tag from [scottwb](https://github.com/scottwb/jekyll-tweet-tag) which has not been updated since Twitter updated their API to require Oauth. This version uses the excellent [Twitter gem](https://github.com/sferik/twitter) to make requests and handle authentication.
+It is based on the original Jekyll Tweet Tag from [scottwb](https://github.com/scottwb/jekyll-tweet-tag) which has not been updated since Twitter updated their API to require certain preconditions. This version uses the excellent [Twitter gem](https://github.com/sferik/twitter) to make requests and handle authentication.
 
 This plugin replaces the broken plugin mentioned above and uses a different tag name and API - this is by design so that the two plugins can be used, if the original gets fixed.
 
@@ -73,7 +73,7 @@ $ export TWITTER_CONSUMER_KEY=foo etc.
 
 To use the plugin, in your source content use the tag `twitter` and then pass additional parameters to the plugin.
 
-```ruby
+```liquid
 {% plugin_type api_type *params %}
 ```
 
@@ -89,8 +89,9 @@ The following Twitter APIs are supported.
 
 The [oembed](https://dev.twitter.com/rest/reference/get/statuses/oembed) API returns html snippet to embed in your app, this will be rendered in the familiar Twitter style.
 
-```ruby
+```liquid
 {% twitter oembed status_url *options %}
+
 # Example
 {% twitter oembed https://twitter.com/rubygems/status/518821243320287232 %}
 # With options

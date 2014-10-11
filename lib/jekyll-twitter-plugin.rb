@@ -37,8 +37,6 @@ module TwitterJekyll
   end
 
   class NullCache
-    def initialize; end
-
     def read(_key); end
 
     def write(_key, _data); end
