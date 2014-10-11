@@ -52,7 +52,15 @@ module TwitterJekyll
     def key; end
   end
 
-  module TwitterApiMixin
+  class TwitterApi
+    def initialize(client, params)
+      @client = client
+      @status_url = params.shift
+      parse_args(params)
+    end
+
+    private
+
     def id_from_status_url(url)
       if url.to_s =~ /([^\/]+$)/
         Regexp.last_match[1]
@@ -66,24 +74,36 @@ module TwitterJekyll
     rescue Twitter::Error::NotFound
       nil
     end
+
+    def parse_args(args)
+      @params ||= begin
+        params = {}
+        args.each do |arg|
+          k, v = arg.split('=').map(&:strip)
+          if k && v
+            if v =~ /^'(.*)'$/
+              v = Regexp.last_match[1]
+            end
+            params[k] = v
+          end
+        end
+        params
+      end
+    end
   end
 
-  class Oembed
-    include TwitterJekyll::TwitterApiMixin
+  class Oembed < TwitterApi
     include TwitterJekyll::Cacheable
-
-    def initialize(client, params)
-      @client = client
-      @status_url = params
-    end
 
     def fetch
       tweet_id = id_from_status_url(@status_url)
 
       if tweet = find_tweet(tweet_id)
-        @client.oembed tweet
+        @client.oembed tweet, @params
       end
     end
+
+    private
 
     def key
       @status_url
@@ -108,19 +128,19 @@ module TwitterJekyll
     end
 
     def render(_context)
-      api_type = @params.first
-      tweet_params  = @params.last
+      api_type = @params.dup.shift
 
-      api_client = create_api_client(api_type, tweet_params)
-      html_output_for(api_client)
+      api_client = create_api_client(api_type, @params)
+      response = cached_response(api_client) || live_response(api_client)
+      html_output_for(response)
     end
 
     private
 
-    def html_output_for(api_client)
+    def html_output_for(response)
       body = ERROR_BODY_TEXT
 
-      if response = cached_response(api_client) || live_response(api_client)
+      if response
         body = response.html || body
       end
 
