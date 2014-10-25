@@ -119,16 +119,16 @@ module TwitterJekyll
 
     def initialize(_name, params, _tokens)
       super
-      @params  = params.split(/\s+/).map(&:strip)
-      @cache   = FileCache.new('./.tweet-cache')
+      @cache    = FileCache.new('./.tweet-cache')
+      args      = params.split(/\s+/).map(&:strip)
+      @api_type = args.shift
+      @params   = args
 
       create_twitter_rest_client
     end
 
     def render(_context)
-      api_type = @params.dup.shift
-
-      api_client = create_api_client(api_type, @params)
+      api_client = create_api_client(@api_type, @params)
       response = cached_response(api_client) || live_response(api_client)
       html_output_for(response)
     end
