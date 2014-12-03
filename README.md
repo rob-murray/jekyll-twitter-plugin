@@ -120,6 +120,8 @@ TODO
 
 ### Contributions
 
+I've tried hard to keep all classes and code in the one `lib/jekyll-twitter-plugin.rb` file so that people can just grab this file and include in their Jekyll `_plugins` directory if they do not want to use the Gem. This may have to be dropped if the one file gets too overwhelming.
+
 Please use the GitHub pull-request mechanism to submit contributions.
 
 ### License
