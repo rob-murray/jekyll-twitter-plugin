@@ -115,8 +115,19 @@ If something goes wrong then a basic error message will be displayed;
 
 ### Caching
 
-TODO
+Twitter API responses can be cached to speed up Jekyll site builds and avoid going over API limits. The reponses will be cached in a directory within your Jekyll project called `.tweet-cache`, ensure that this is not commit to source control.
 
+Caching is enabled by default.
+
+It is possible to disable caching by using the specific `twitternocache` tag.
+
+```liquid
+{% twitternocache oembed status_url *options %}
+
+# Example
+{% twitternocache oembed https://twitter.com/rubygems/status/518821243320287232 %}
+
+```
 
 ### Contributions
 
