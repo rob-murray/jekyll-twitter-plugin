@@ -105,7 +105,7 @@ module TwitterJekyll
     private
 
     def key
-      @status_url
+      '%s-%s' % [@status_url, @params.to_s]
     end
   end
 
