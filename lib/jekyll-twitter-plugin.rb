@@ -4,6 +4,7 @@ require 'twitter'
 # A Liquid tag plugin for Jekyll that renders Tweets from Twitter API.
 # https://github.com/rob-murray/jekyll-twitter-plugin
 #
+
 module TwitterJekyll
   class FileCache
     def initialize(path)
@@ -123,11 +124,11 @@ module TwitterJekyll
       args      = params.split(/\s+/).map(&:strip)
       @api_type = args.shift
       @params   = args
-
-      create_twitter_rest_client
     end
 
-    def render(_context)
+    def render(context)
+      secrets = extract_twitter_secrets_from_context(context) || extract_twitter_secrets_from_env
+      create_twitter_rest_client(secrets)
       api_client = create_api_client(@api_type, @params)
       response = cached_response(api_client) || live_response(api_client)
       html_output_for(response)
@@ -167,13 +168,28 @@ module TwitterJekyll
       end
     end
 
-    def create_twitter_rest_client
+    def create_twitter_rest_client(secrets)
       @twitter_client = Twitter::REST::Client.new do |config|
-        config.consumer_key        = ENV.fetch('TWITTER_CONSUMER_KEY')
-        config.consumer_secret     = ENV.fetch('TWITTER_CONSUMER_SECRET')
-        config.access_token        = ENV.fetch('TWITTER_ACCESS_TOKEN')
-        config.access_token_secret = ENV.fetch('TWITTER_ACCESS_TOKEN_SECRET')
+        config.consumer_key        = secrets.consumer_key
+        config.consumer_secret     = secrets.consumer_secret
+        config.access_token        = secrets.access_token
+        config.access_token_secret = secrets.access_token_secret
       end
+    end
+
+    TwitterSecrets = Struct.new(:consumer_key, :consumer_secret, :access_token, :access_token_secret)
+
+    def extract_twitter_secrets_from_context(context)
+      TwitterSecrets.new(context.registers[:site].config['twitter']['consumer_key'], context.registers[:site].config['twitter']['consumer_secret'], context.registers[:site].config['twitter']['access_token'], context.registers[:site].config['twitter']['access_token_secret']) if context_has_twitter_secrets?(context)
+    end
+
+    def context_has_twitter_secrets?(context)
+      twitter_secrets = context.registers[:site].config['twitter'] || {}
+      ['consumer_key', 'consumer_secret', 'access_token', 'access_token_secret'].all? {|s| twitter_secrets.key?(s)}
+    end
+
+    def extract_twitter_secrets_from_env
+      TwitterSecrets.new(ENV.fetch('TWITTER_CONSUMER_KEY'), ENV.fetch('TWITTER_CONSUMER_SECRET'), ENV.fetch('TWITTER_ACCESS_TOKEN'), ENV.fetch('TWITTER_ACCESS_TOKEN_SECRET'))
     end
   end
 

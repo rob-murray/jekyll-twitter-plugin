@@ -27,7 +27,6 @@ The plugin supports the following features:
 
 * Twitter oauth credentials - Most Twitter api functions now require authentication. Set up your [application](https://dev.twitter.com/apps/new) and get the credentials.
 
-
 ### Usage
 
 As mentioned by [Jekyll's documentation](http://jekyllrb.com/docs/plugins/#installing-a-plugin) you have two options; manually import the source file or require the plugin as a `gem`.
@@ -58,7 +57,21 @@ $ wget https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/master
 
 #### Credentials
 
-Your Twitter application authentication credentials are private - do not distribute these! As such this plugin requires your credentials as Environment variables, it requires the following keys to be set;
+Your Twitter application authentication credentials are private - do not distribute these!
+
+You can set the authentication variables by adding them to `_config.yml`.
+
+```yaml
+# _config.yml
+twitter:
+  consumer_key: asdf
+  consumer_secret: asdf
+  access_token: asdf
+  access_token_secret: asdf
+```
+
+If the authentication variables are not present in `_config.yml` they can be gathered from
+environment variables.
 
 * TWITTER_CONSUMER_KEY
 * TWITTER_CONSUMER_SECRET
@@ -100,7 +113,7 @@ The [oembed](https://dev.twitter.com/rest/reference/get/statuses/oembed) API ret
 
 ### Output
 
-As with the original plugin, all content will be rendered inside a div with the classes 'embed' and 'twitter' 
+As with the original plugin, all content will be rendered inside a div with the classes 'embed' and 'twitter'
 
 ```html
 <div class='embed twitter'>
