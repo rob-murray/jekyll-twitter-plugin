@@ -125,6 +125,9 @@ If something goes wrong then a basic error message will be displayed;
 
 > Tweet could not be processed
 
+If the Twitter client receives one of `Twitter::Error::NotFound, Twitter::Error::Forbidden` errors, this suggests the Tweet is protected or deleted and the following error will be displayed and cached so that it is not fetched again, and again. If the Tweet is restored then simply delete the cached response from `.tweet-cache` directory and build again.
+
+> There was a '{error name}' error fetching Tweet '{Tweet status url}'
 
 ### Caching
 
