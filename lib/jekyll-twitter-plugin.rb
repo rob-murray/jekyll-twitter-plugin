@@ -52,6 +52,8 @@ module TwitterJekyll
   end
 
   class TwitterApi
+    ERRORS_TO_IGNORE = [Twitter::Error::NotFound, Twitter::Error::Forbidden]
+
     def initialize(client, params)
       @client = client
       @status_url = params.shift
@@ -70,7 +72,7 @@ module TwitterJekyll
       return unless id
 
       @client.status(id.to_i)
-    rescue Twitter::Error::NotFound
+    rescue *ERRORS_TO_IGNORE
       nil
     end
 
