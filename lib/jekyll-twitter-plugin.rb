@@ -54,6 +54,8 @@ module TwitterJekyll
   class TwitterApi
     ERRORS_TO_IGNORE = [Twitter::Error::NotFound, Twitter::Error::Forbidden]
 
+    attr_reader :error
+
     def initialize(client, params)
       @client = client
       @status_url = params.shift
@@ -72,8 +74,9 @@ module TwitterJekyll
       return unless id
 
       @client.status(id.to_i)
-    rescue *ERRORS_TO_IGNORE
-      nil
+    rescue *ERRORS_TO_IGNORE => e
+      @error = create_error(e)
+      return nil
     end
 
     def parse_args(args)
@@ -91,6 +94,10 @@ module TwitterJekyll
         params
       end
     end
+
+    def create_error(exception)
+      ErrorResponse.new("There was a '#{exception.class.name}' error fetching Tweet '#{@status_url}'")
+    end
   end
 
   class Oembed < TwitterApi
@@ -101,6 +108,8 @@ module TwitterJekyll
 
       if tweet = find_tweet(tweet_id)
         @client.oembed tweet, @params
+      else
+        error
       end
     end
 
@@ -117,8 +126,22 @@ module TwitterJekyll
     def fetch; end
   end
 
+  class ErrorResponse
+    def initialize(error)
+      @error = error
+    end
+
+    def html
+      "<p>#{@error}</p>"
+    end
+
+    def to_h
+      { html: html }
+    end
+  end
+
   class TwitterTag < Liquid::Tag
-    ERROR_BODY_TEXT = 'Tweet could not be processed'
+    ERROR_BODY_TEXT = '<p>Tweet could not be processed</p>'
 
     def initialize(_name, params, _tokens)
       super
