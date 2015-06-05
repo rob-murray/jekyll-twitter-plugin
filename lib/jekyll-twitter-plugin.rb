@@ -107,7 +107,9 @@ module TwitterJekyll
       tweet_id = id_from_status_url(@status_url)
 
       if tweet = find_tweet(tweet_id)
-        @client.oembed tweet, @params
+        # To work around a 'bug' in the Twitter gem modifying our hash we pass in
+        # a copy otherwise our cache key is altered.
+        @client.oembed tweet, @params.dup
       else
         error
       end
