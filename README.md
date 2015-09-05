@@ -11,7 +11,7 @@ A Liquid tag plugin for [Jekyll](http://jekyllrb.com/) that enables Twitter cont
 
 It is based on the original Jekyll Tweet Tag from [scottwb](https://github.com/scottwb/jekyll-tweet-tag) which has not been updated since Twitter updated their API to require certain preconditions. This version uses the excellent [Twitter gem](https://github.com/sferik/twitter) to make requests and handle authentication.
 
-This plugin replaces the broken plugin mentioned above and uses a different tag name and API - this is by design so that the two plugins can be used, if the original gets fixed.
+This plugin replaces the broken plugin mentioned above and uses a different tag name and API - this is by design so that the two plugins can be separated and you can be certain which plugin is being used.
 
 
 ### Features
