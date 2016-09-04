@@ -1,15 +1,15 @@
-require 'fileutils'
-require 'twitter'
+# frozen_string_literal: true
+require "fileutils"
+require "twitter"
 
 ##
 # A Liquid tag plugin for Jekyll that renders Tweets from Twitter API.
 # https://github.com/rob-murray/jekyll-twitter-plugin
 #
-
 module TwitterJekyll
   class FileCache
     def initialize(path)
-      @cache_folder   = File.expand_path path
+      @cache_folder = File.expand_path path
       FileUtils.mkdir_p @cache_folder
     end
 
@@ -22,7 +22,7 @@ module TwitterJekyll
       file_to_write = cache_file(cache_filename(key))
       data_to_write = JSON.generate data.to_h
 
-      File.open(file_to_write, 'w') do |f|
+      File.open(file_to_write, "w") do |f|
         f.write(data_to_write)
       end
     end
@@ -53,7 +53,7 @@ module TwitterJekyll
   end
 
   class TwitterApi
-    ERRORS_TO_IGNORE = [Twitter::Error::NotFound, Twitter::Error::Forbidden]
+    ERRORS_TO_IGNORE = [Twitter::Error::NotFound, Twitter::Error::Forbidden].freeze
 
     attr_reader :error
 
@@ -66,9 +66,7 @@ module TwitterJekyll
     private
 
     def id_from_status_url(url)
-      if url.to_s =~ /([^\/]+$)/
-        Regexp.last_match[1]
-      end
+      Regexp.last_match[1] if url.to_s =~ %r{([^\/]+$)}
     end
 
     def find_tweet(id)
@@ -82,17 +80,13 @@ module TwitterJekyll
 
     def parse_args(args)
       @params ||= begin
-        params = {}
-        args.each do |arg|
-          k, v = arg.split('=').map(&:strip)
+        args.each_with_object({}) do |arg, params|
+          k, v = arg.split("=").map(&:strip)
           if k && v
-            if v =~ /^'(.*)'$/
-              v = Regexp.last_match[1]
-            end
+            v = Regexp.last_match[1] if v =~ /^'(.*)'$/
             params[k] = v
           end
         end
-        params
       end
     end
 
@@ -119,7 +113,7 @@ module TwitterJekyll
     private
 
     def key
-      '%s-%s' % [@status_url, @params.to_s]
+      format("%s-%s", @status_url, @params.to_s)
     end
   end
 
@@ -144,11 +138,11 @@ module TwitterJekyll
   end
 
   class TwitterTag < Liquid::Tag
-    ERROR_BODY_TEXT = '<p>Tweet could not be processed</p>'
+    ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>".freeze
 
     def initialize(_name, params, _tokens)
       super
-      @cache    = FileCache.new('./.tweet-cache')
+      @cache    = FileCache.new("./.tweet-cache")
       args      = params.split(/\s+/).map(&:strip)
       @api_type = args.shift
       @params   = args
@@ -165,11 +159,7 @@ module TwitterJekyll
     private
 
     def html_output_for(response)
-      body = ERROR_BODY_TEXT
-
-      if response
-        body = response.html || body
-      end
+      body = response.html || ERROR_BODY_TEXT if response
 
       "<div class='embed twitter'>#{body}</div>"
     end
@@ -208,16 +198,16 @@ module TwitterJekyll
     TwitterSecrets = Struct.new(:consumer_key, :consumer_secret, :access_token, :access_token_secret)
 
     def extract_twitter_secrets_from_context(context)
-      TwitterSecrets.new(context.registers[:site].config['twitter']['consumer_key'], context.registers[:site].config['twitter']['consumer_secret'], context.registers[:site].config['twitter']['access_token'], context.registers[:site].config['twitter']['access_token_secret']) if context_has_twitter_secrets?(context)
+      TwitterSecrets.new(context.registers[:site].config["twitter"]["consumer_key"], context.registers[:site].config["twitter"]["consumer_secret"], context.registers[:site].config["twitter"]["access_token"], context.registers[:site].config["twitter"]["access_token_secret"]) if context_has_twitter_secrets?(context)
     end
 
     def context_has_twitter_secrets?(context)
-      twitter_secrets = context.registers[:site].config['twitter'] || {}
-      ['consumer_key', 'consumer_secret', 'access_token', 'access_token_secret'].all? {|s| twitter_secrets.key?(s)}
+      twitter_secrets = context.registers[:site].config["twitter"] || {}
+      %w(consumer_key consumer_secret access_token access_token_secret).all? { |s| twitter_secrets.key?(s) }
     end
 
     def extract_twitter_secrets_from_env
-      TwitterSecrets.new(ENV.fetch('TWITTER_CONSUMER_KEY'), ENV.fetch('TWITTER_CONSUMER_SECRET'), ENV.fetch('TWITTER_ACCESS_TOKEN'), ENV.fetch('TWITTER_ACCESS_TOKEN_SECRET'))
+      TwitterSecrets.new(ENV.fetch("TWITTER_CONSUMER_KEY"), ENV.fetch("TWITTER_CONSUMER_SECRET"), ENV.fetch("TWITTER_ACCESS_TOKEN"), ENV.fetch("TWITTER_ACCESS_TOKEN_SECRET"))
     end
   end
 
@@ -229,5 +219,5 @@ module TwitterJekyll
   end
 end
 
-Liquid::Template.register_tag('twitter', TwitterJekyll::TwitterTag)
-Liquid::Template.register_tag('twitternocache', TwitterJekyll::TwitterTagNoCache)
+Liquid::Template.register_tag("twitter", TwitterJekyll::TwitterTag)
+Liquid::Template.register_tag("twitternocache", TwitterJekyll::TwitterTagNoCache)

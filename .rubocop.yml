@@ -1,0 +1,13 @@
+LineLength:
+  Enabled: false
+
+StringLiterals:
+  EnforcedStyle: double_quotes
+  Enabled: true
+
+Documentation:
+  Enabled: false
+
+Style/FileName:
+  Exclude:
+    - 'lib/jekyll-twitter-plugin.rb'

@@ -13,7 +13,7 @@ OPTIONS = [
   "oembed https://twitter.com/rubygems/status/518821243320287232",
   "oembed https://twitter.com/rubygems/status/518821243320287232 align='right' width='350'",
   "oembed https://twitter.com/rubygems/status/missing"
-]
+].freeze
 
 COLOUR_MAP = {
   red: 31,
@@ -37,9 +37,9 @@ class TwitterRenderer
   end
 
   def render
-    ERB.new(template).
-      result(binding).
-      gsub!("src=\"//", "src=\"https://")
+    ERB.new(template)
+       .result(binding)
+       .gsub!("src=\"//", "src=\"https://")
   end
 
   private
