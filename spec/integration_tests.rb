@@ -4,7 +4,7 @@
 # * Requires .env populated with valid Twitter API creds.
 #
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
-require_relative "support/jekyll_template"
+require "support/jekyll_template"
 require "jekyll-twitter-plugin"
 require "erb"
 
