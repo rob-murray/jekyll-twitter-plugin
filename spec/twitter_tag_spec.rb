@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 RSpec.describe TwitterJekyll::TwitterTag do
   let(:context) { double.as_null_object }
@@ -104,12 +103,13 @@ RSpec.describe TwitterJekyll::TwitterTag do
 
       context "with oembed requested" do
         let(:options) { "oembed https://twitter.com/twitter_user/status/12345" }
+        let(:status) { double }
 
         it "uses the oembed api" do
-          api_client = double("Twitter::REST::Client", status: {})
+          api_client = double("Twitter::REST::Client", status: status)
           allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
 
-          expect(api_client).to receive(:oembed).and_return(response)
+          expect(api_client).to receive(:oembed).with(status, {}).and_return(response)
           subject.render(context)
         end
       end
@@ -129,11 +129,38 @@ RSpec.describe TwitterJekyll::TwitterTag do
     end
 
     describe "parsing options" do
+      let(:status) { double }
+      let(:cache) { double("TwitterJekyll::FileCache").as_null_object }
+
       context "with extra options" do
-        it "passes to api and influences cache key"
+        let(:options) { "oembed https://twitter.com/twitter_user/status/12345 align='right' width='350'" }
+
+        it "passes to api" do
+          api_client = double("Twitter::REST::Client", status: status)
+          allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
+
+          expect(api_client).to receive(:oembed).with(status, { "align" => "right", "width" => "350" }).and_return(response)
+          subject.render(context)
+        end
+      end
+
+      context "with an invalid option" do
+        let(:options) { "oembed https://twitter.com/twitter_user/status/12345 align= width='350'" }
+
+        it "ignores param" do
+          api_client = double("Twitter::REST::Client", status: status)
+          allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
+
+          expect(api_client).to receive(:oembed).with(status, { "width" => "350" }).and_return(response)
+          subject.render(context)
+        end
       end
     end
   end
+
+
+  # * secrets
+  # * file cache
 
   private
 
