@@ -2,7 +2,7 @@
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "support/jekyll_template"
 require "jekyll-twitter-plugin"
-require "pry-byebug"
+require "byebug"
 
 #
 # The `.rspec` file also contains a few flags that are not defaults but that
