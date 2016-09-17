@@ -139,7 +139,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
           api_client = double("Twitter::REST::Client", status: status)
           allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
 
-          expect(api_client).to receive(:oembed).with(status, { "align" => "right", "width" => "350" }).and_return(response)
+          expect(api_client).to receive(:oembed).with(status, "align" => "right", "width" => "350").and_return(response)
           subject.render(context)
         end
       end
@@ -151,16 +151,75 @@ RSpec.describe TwitterJekyll::TwitterTag do
           api_client = double("Twitter::REST::Client", status: status)
           allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
 
-          expect(api_client).to receive(:oembed).with(status, { "width" => "350" }).and_return(response)
+          expect(api_client).to receive(:oembed).with(status, "width" => "350").and_return(response)
           subject.render(context)
         end
       end
     end
+
+    describe "parsing api secrets" do
+      let(:cache) { double("TwitterJekyll::FileCache").as_null_object }
+      let(:api_client) { double("Twitter::REST::Client", status: double) }
+      let(:builder) { double }
+      before do
+        allow(Twitter::REST::Client).to receive(:new).and_yield(builder).and_return(api_client)
+        allow(api_client).to receive(:oembed).and_return(response)
+      end
+
+      context "with api secrets provided by ENV" do
+        let(:context) { double("context", registers: { site: double(config: {}) }) }
+        before do
+          stub_const("ENV", "TWITTER_CONSUMER_KEY" => "consumer_key",
+                            "TWITTER_CONSUMER_SECRET" => "consumer_secret",
+                            "TWITTER_ACCESS_TOKEN" => "access_token",
+                            "TWITTER_ACCESS_TOKEN_SECRET" => "access_token_secret")
+        end
+
+        it "creates api client correctly" do
+          expect(builder).to receive(:consumer_key=).with("consumer_key")
+          expect(builder).to receive(:consumer_secret=).with("consumer_secret")
+          expect(builder).to receive(:access_token=).with("access_token")
+          expect(builder).to receive(:access_token_secret=).with("access_token_secret")
+
+          subject.render(context)
+        end
+      end
+
+      context "with api secrets provided by Jekyll config" do
+        let(:context) do
+          api_secrets = %w(consumer_key consumer_secret access_token access_token_secret)
+                        .each_with_object({}) { |secret, h| h[secret] = secret }
+          double("context", registers:
+            { site: double(config: { "twitter" => api_secrets }) })
+        end
+        before do
+          stub_const("ENV", {})
+        end
+
+        it "creates api client correctly" do
+          expect(builder).to receive(:consumer_key=).with("consumer_key")
+          expect(builder).to receive(:consumer_secret=).with("consumer_secret")
+          expect(builder).to receive(:access_token=).with("access_token")
+          expect(builder).to receive(:access_token_secret=).with("access_token_secret")
+
+          subject.render(context)
+        end
+      end
+
+      context "with no api secrets provided" do
+        let(:context) { double("context", registers: { site: double(config: {}) }) }
+        before do
+          stub_const("ENV", {})
+        end
+
+        it "raises an exception" do
+          expect do
+            subject.render(context)
+          end.to raise_error(TwitterJekyll::MissingApiKeyError)
+        end
+      end
+    end
   end
-
-
-  # * secrets
-  # * file cache
 
   private
 

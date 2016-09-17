@@ -7,6 +7,15 @@ require "twitter"
 # https://github.com/rob-murray/jekyll-twitter-plugin
 #
 module TwitterJekyll
+  MissingApiKeyError = Class.new(StandardError)
+  TwitterSecrets = Struct.new(:consumer_key, :consumer_secret, :access_token, :access_token_secret) do
+    def self.build(source, keys)
+      new(*source.values_at(*keys))
+    end
+  end
+  CONTEXT_API_KEYS = %w(consumer_key consumer_secret access_token access_token_secret).freeze
+  ENV_API_KEYS = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
+
   class FileCache
     def initialize(path)
       @cache_folder = File.expand_path path
@@ -156,7 +165,7 @@ module TwitterJekyll
     end
 
     def render(context)
-      secrets = extract_twitter_secrets_from_context(context) || extract_twitter_secrets_from_env
+      secrets = extract_twitter_secrets_from_context(context) || extract_twitter_secrets_from_env || missing_keys!
       create_twitter_rest_client(secrets)
       api_client = create_api_client(@api_type, @params)
       response = cached_response(api_client) || live_response(api_client)
@@ -206,19 +215,29 @@ module TwitterJekyll
       end
     end
 
-    TwitterSecrets = Struct.new(:consumer_key, :consumer_secret, :access_token, :access_token_secret)
-
     def extract_twitter_secrets_from_context(context)
-      TwitterSecrets.new(context.registers[:site].config["twitter"]["consumer_key"], context.registers[:site].config["twitter"]["consumer_secret"], context.registers[:site].config["twitter"]["access_token"], context.registers[:site].config["twitter"]["access_token_secret"]) if context_has_twitter_secrets?(context)
-    end
+      twitter_secrets = context.registers[:site].config.fetch("twitter", {})
+      return unless store_has_keys?(twitter_secrets, CONTEXT_API_KEYS)
 
-    def context_has_twitter_secrets?(context)
-      twitter_secrets = context.registers[:site].config["twitter"] || {}
-      %w(consumer_key consumer_secret access_token access_token_secret).all? { |s| twitter_secrets.key?(s) }
+      TwitterSecrets.build(twitter_secrets, CONTEXT_API_KEYS)
     end
 
     def extract_twitter_secrets_from_env
-      TwitterSecrets.new(ENV.fetch("TWITTER_CONSUMER_KEY"), ENV.fetch("TWITTER_CONSUMER_SECRET"), ENV.fetch("TWITTER_ACCESS_TOKEN"), ENV.fetch("TWITTER_ACCESS_TOKEN_SECRET"))
+      return unless env_has_twitter_secrets?
+
+      TwitterSecrets.build(ENV, ENV_API_KEYS)
+    end
+
+    def env_has_twitter_secrets?
+      store_has_keys?(ENV, ENV_API_KEYS)
+    end
+
+    def store_has_keys?(store, keys)
+      keys.all? { |required_key| store.key?(required_key) }
+    end
+
+    def missing_keys!
+      raise MissingApiKeyError, "Twitter API keys not found. You can specify these in Jekyll config or ENV. Please see README."
     end
   end
 

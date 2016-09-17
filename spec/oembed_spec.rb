@@ -30,7 +30,7 @@ RSpec.describe TwitterJekyll::Oembed do
         ).to be false
 
         expect(
-          oembed_1.cache_key == oembed_1.cache_key
+          oembed_1.cache_key == oembed_3.cache_key
         ).to be true
       end
     end
