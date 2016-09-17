@@ -39,6 +39,8 @@ module TwitterJekyll
   end
 
   class NullCache
+    def initialize(*_args); end
+
     def read(_key); end
 
     def write(_key, _data); end
@@ -138,14 +140,19 @@ module TwitterJekyll
   end
 
   class TwitterTag < Liquid::Tag
-    ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>".freeze
+    ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>"
+
+    attr_writer :cache # for testing
 
     def initialize(_name, params, _tokens)
       super
-      @cache    = FileCache.new("./.tweet-cache")
       args      = params.split(/\s+/).map(&:strip)
       @api_type = args.shift
       @params   = args
+    end
+
+    def self.cache_klass
+      FileCache
     end
 
     def render(context)
@@ -158,21 +165,25 @@ module TwitterJekyll
 
     private
 
+    def cache
+      @cache ||= self.class.cache_klass.new("./.tweet-cache")
+    end
+
     def html_output_for(response)
-      body = response.html || ERROR_BODY_TEXT if response
+      body = (response.html if response) || ERROR_BODY_TEXT
 
       "<div class='embed twitter'>#{body}</div>"
     end
 
     def live_response(api_client)
       if response = api_client.fetch
-        @cache.write(api_client.cache_key, response)
+        cache.write(api_client.cache_key, response)
         response
       end
     end
 
     def cached_response(api_client)
-      response = @cache.read(api_client.cache_key)
+      response = cache.read(api_client.cache_key)
       OpenStruct.new(response) unless response.nil?
     end
 
@@ -212,9 +223,8 @@ module TwitterJekyll
   end
 
   class TwitterTagNoCache < TwitterTag
-    def initialize(_tag_name, _text, _token)
-      super
-      @cache = NullCache.new
+    def self.cache_klass
+      NullCache
     end
   end
 end
