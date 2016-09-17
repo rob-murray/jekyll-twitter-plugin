@@ -37,3 +37,4 @@ Gemfile.lock
 # App specific
 .env
 output_test.html
+.tweet-cache

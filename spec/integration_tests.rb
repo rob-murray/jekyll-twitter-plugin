@@ -4,7 +4,7 @@
 # * Requires .env populated with valid Twitter API creds.
 #
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
-require "support/jekyll_template"
+require_relative "./support/jekyll_template"
 require "jekyll-twitter-plugin"
 require "erb"
 
@@ -47,7 +47,8 @@ class TwitterRenderer
   attr_reader :options, :jekyll_context
 
   def render_twitter_tag(params)
-    TwitterJekyll::TwitterTagNoCache.new(nil, params, nil).render(jekyll_context)
+    say_with_colour "Fetching with params: #{params}", :yellow
+    TwitterJekyll::TwitterTag.new(nil, params, nil).render(jekyll_context)
   end
 
   def template
