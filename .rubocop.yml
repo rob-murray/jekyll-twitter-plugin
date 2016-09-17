@@ -11,3 +11,6 @@ Documentation:
 Style/FileName:
   Exclude:
     - 'lib/jekyll-twitter-plugin.rb'
+
+Lint/AssignmentInCondition:
+  Enabled: false
