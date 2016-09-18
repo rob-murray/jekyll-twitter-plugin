@@ -74,6 +74,8 @@ module TwitterJekyll
       parse_args(params)
     end
 
+    def fetch; end
+
     private
 
     def id_from_status_url(url)
@@ -135,6 +137,8 @@ module TwitterJekyll
   end
 
   class ErrorResponse
+    attr_reader :error
+
     def initialize(error)
       @error = error
     end
@@ -223,13 +227,9 @@ module TwitterJekyll
     end
 
     def extract_twitter_secrets_from_env
-      return unless env_has_twitter_secrets?
+      return unless store_has_keys?(ENV, ENV_API_KEYS)
 
       TwitterSecrets.build(ENV, ENV_API_KEYS)
-    end
-
-    def env_has_twitter_secrets?
-      store_has_keys?(ENV, ENV_API_KEYS)
     end
 
     def store_has_keys?(store, keys)

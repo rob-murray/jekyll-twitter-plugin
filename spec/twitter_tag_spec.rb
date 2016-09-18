@@ -47,7 +47,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
 
     context "with successful api request" do
       it "renders response from api and writes to cache" do
-        api_client = double("Twitter::REST::Client", status: {})
+        api_client = double("Twitter::REST::Client", status: double)
         allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
 
         expect(api_client).to receive(:oembed).and_return(response)
@@ -60,7 +60,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
 
     context "with a status not found api request" do
       it "renders response from api and does not write to cache" do
-        api_client = double("Twitter::REST::Client", status: {})
+        api_client = double("Twitter::REST::Client", status: double)
         allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
 
         expect(api_client).to receive(:status).and_raise(Twitter::Error::NotFound)
@@ -73,7 +73,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
 
     context "with a status request not permitted api request" do
       it "renders response from api and does not write to cache" do
-        api_client = double("Twitter::REST::Client", status: {})
+        api_client = double("Twitter::REST::Client", status: double)
         allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
 
         expect(api_client).to receive(:status).and_raise(Twitter::Error::Forbidden)
@@ -81,20 +81,6 @@ RSpec.describe TwitterJekyll::TwitterTag do
 
         output = subject.render(context)
         expect_output_to_have_error(output, Twitter::Error::Forbidden)
-      end
-    end
-
-    describe "parsing status id" do
-      let(:cache) { double("TwitterJekyll::FileCache").as_null_object }
-      let(:options) { "oembed https://twitter.com/twitter_user/status/12345" }
-
-      it "parses the status id from the tweet url correctly" do
-        api_client = double("Twitter::REST::Client")
-        allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
-        allow(api_client).to receive(:oembed).and_return(response)
-
-        expect(api_client).to receive(:status).with(12_345).and_return(response)
-        subject.render(context)
       end
     end
 
@@ -118,41 +104,12 @@ RSpec.describe TwitterJekyll::TwitterTag do
         let(:options) { "unsupported https://twitter.com/twitter_user/status/12345" }
 
         it "renders error message" do
-          api_client = double("Twitter::REST::Client", status: {})
+          api_client = double("Twitter::REST::Client", status: double)
           allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
 
           expect(api_client).not_to receive(:oembed)
           output = subject.render(context)
           expect_output_to_match_tag_content(output, "<p>Tweet could not be processed</p>")
-        end
-      end
-    end
-
-    describe "parsing options" do
-      let(:status) { double }
-      let(:cache) { double("TwitterJekyll::FileCache").as_null_object }
-
-      context "with extra options" do
-        let(:options) { "oembed https://twitter.com/twitter_user/status/12345 align='right' width='350'" }
-
-        it "passes to api" do
-          api_client = double("Twitter::REST::Client", status: status)
-          allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
-
-          expect(api_client).to receive(:oembed).with(status, "align" => "right", "width" => "350").and_return(response)
-          subject.render(context)
-        end
-      end
-
-      context "with an invalid option" do
-        let(:options) { "oembed https://twitter.com/twitter_user/status/12345 align= width='350'" }
-
-        it "ignores param" do
-          api_client = double("Twitter::REST::Client", status: status)
-          allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
-
-          expect(api_client).to receive(:oembed).with(status, "width" => "350").and_return(response)
-          subject.render(context)
         end
       end
     end
