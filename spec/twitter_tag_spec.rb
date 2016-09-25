@@ -86,13 +86,48 @@ RSpec.describe TwitterJekyll::TwitterTag do
     end
   end
 
+  describe "With an invalid request type" do
+    context "without any arguments" do
+      let(:options) { "" }
+
+      it "raises an exception" do
+        expect_to_raise_invalid_args_error do
+          tag = described_class.new(nil, options, nil)
+          tag.render(context)
+        end
+      end
+    end
+
+    context "with an api request type not supported" do
+      let(:options) { "unsupported https://twitter.com/twitter_user/status/12345" }
+
+      it "raises an exception" do
+        expect_to_raise_invalid_args_error do
+          tag = described_class.new(nil, options, nil)
+          tag.render(context)
+        end
+      end
+    end
+
+    context "without an api request type and no valid status url" do
+      let(:options) { "https://anything.com/twitter_user/status/12345" }
+
+      it "raises an exception" do
+        expect_to_raise_invalid_args_error do
+          tag = described_class.new(nil, options, nil)
+          tag.render(context)
+        end
+      end
+    end
+  end
+
   describe "parsing api request type" do
     include_context "without cached response"
     let(:response) { OpenStruct.new(html: "anything") }
+    let(:status) { double }
 
     context "with oembed requested" do
       let(:options) { "oembed https://twitter.com/twitter_user/status/12345" }
-      let(:status) { double }
 
       it "uses the oembed api" do
         api_client = double("Twitter::REST::Client", status: status)
@@ -103,16 +138,15 @@ RSpec.describe TwitterJekyll::TwitterTag do
       end
     end
 
-    context "with an api request not supported" do
-      let(:options) { "unsupported https://twitter.com/twitter_user/status/12345" }
+    context "without an api request type" do
+      let(:options) { "https://twitter.com/twitter_user/status/12345" }
 
-      it "renders error message" do
-        api_client = double("Twitter::REST::Client", status: double)
+      it "uses the default oembed api type" do
+        api_client = double("Twitter::REST::Client", status: status)
         allow(Twitter::REST::Client).to receive(:new).and_return(api_client)
 
-        expect(api_client).not_to receive(:oembed)
-        output = subject.render(context)
-        expect_output_to_match_tag_content(output, "<p>Tweet could not be processed</p>")
+        expect(api_client).to receive(:oembed).with(status, {}).and_return(response)
+        subject.render(context)
       end
     end
   end
@@ -191,6 +225,15 @@ RSpec.describe TwitterJekyll::TwitterTag do
 
   def expect_output_to_have_error(actual, error, tweet_url = "https://twitter.com/twitter_user/status/12345")
     expect_output_to_match_tag_content(actual, "<p>There was a '#{error}' error fetching Tweet '#{tweet_url}'</p>")
+  end
+
+  def expect_to_raise_invalid_args_error
+    raise unless block_given?
+
+    message = "Invalid arguments passed to 'jekyll-twitter-plugin'. Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage."
+    expect do
+      yield
+    end.to raise_error(ArgumentError, message)
   end
 
   # The twitter gem responds with a struct like object so we do too.
