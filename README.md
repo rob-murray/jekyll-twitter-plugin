@@ -2,8 +2,8 @@
 
 A Liquid tag plugin for Jekyll that renders Tweets from Twitter API.
 
+[![Build Status](https://travis-ci.org/rob-murray/jekyll-twitter-plugin.svg?branch=master)](https://travis-ci.org/rob-murray/jekyll-twitter-plugin)
 [![Gem Version](https://badge.fury.io/rb/jekyll-twitter-plugin.svg)](http://badge.fury.io/rb/jekyll-twitter-plugin)
-
 
 ### Description
 

@@ -8,6 +8,7 @@
 /test/tmp/
 /test/version_tmp/
 /tmp/
+.byebug_history
 
 ## Specific to RubyMotion:
 .dat*
@@ -32,3 +33,8 @@ Gemfile.lock
 
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
+
+# App specific
+.env
+output_test.html
+.tweet-cache

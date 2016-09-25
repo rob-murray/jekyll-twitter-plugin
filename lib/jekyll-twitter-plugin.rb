@@ -1,14 +1,24 @@
-require 'twitter'
+# frozen_string_literal: true
+require "fileutils"
+require "twitter"
 
 ##
 # A Liquid tag plugin for Jekyll that renders Tweets from Twitter API.
 # https://github.com/rob-murray/jekyll-twitter-plugin
 #
-
 module TwitterJekyll
+  MissingApiKeyError = Class.new(StandardError)
+  TwitterSecrets = Struct.new(:consumer_key, :consumer_secret, :access_token, :access_token_secret) do
+    def self.build(source, keys)
+      new(*source.values_at(*keys))
+    end
+  end
+  CONTEXT_API_KEYS = %w(consumer_key consumer_secret access_token access_token_secret).freeze
+  ENV_API_KEYS = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
+
   class FileCache
     def initialize(path)
-      @cache_folder   = File.expand_path path
+      @cache_folder = File.expand_path path
       FileUtils.mkdir_p @cache_folder
     end
 
@@ -21,7 +31,7 @@ module TwitterJekyll
       file_to_write = cache_file(cache_filename(key))
       data_to_write = JSON.generate data.to_h
 
-      File.open(file_to_write, 'w') do |f|
+      File.open(file_to_write, "w") do |f|
         f.write(data_to_write)
       end
     end
@@ -38,6 +48,8 @@ module TwitterJekyll
   end
 
   class NullCache
+    def initialize(*_args); end
+
     def read(_key); end
 
     def write(_key, _data); end
@@ -52,7 +64,7 @@ module TwitterJekyll
   end
 
   class TwitterApi
-    ERRORS_TO_IGNORE = [Twitter::Error::NotFound, Twitter::Error::Forbidden]
+    ERRORS_TO_IGNORE = [Twitter::Error::NotFound, Twitter::Error::Forbidden].freeze
 
     attr_reader :error
 
@@ -62,12 +74,12 @@ module TwitterJekyll
       parse_args(params)
     end
 
+    def fetch; end
+
     private
 
     def id_from_status_url(url)
-      if url.to_s =~ /([^\/]+$)/
-        Regexp.last_match[1]
-      end
+      Regexp.last_match[1] if url.to_s =~ %r{([^\/]+$)}
     end
 
     def find_tweet(id)
@@ -81,17 +93,13 @@ module TwitterJekyll
 
     def parse_args(args)
       @params ||= begin
-        params = {}
-        args.each do |arg|
-          k, v = arg.split('=').map(&:strip)
+        args.each_with_object({}) do |arg, params|
+          k, v = arg.split("=").map(&:strip)
           if k && v
-            if v =~ /^'(.*)'$/
-              v = Regexp.last_match[1]
-            end
+            v = Regexp.last_match[1] if v =~ /^'(.*)'$/
             params[k] = v
           end
         end
-        params
       end
     end
 
@@ -118,7 +126,7 @@ module TwitterJekyll
     private
 
     def key
-      '%s-%s' % [@status_url, @params.to_s]
+      format("%s-%s", @status_url, @params.to_s)
     end
   end
 
@@ -129,6 +137,8 @@ module TwitterJekyll
   end
 
   class ErrorResponse
+    attr_reader :error
+
     def initialize(error)
       @error = error
     end
@@ -143,18 +153,23 @@ module TwitterJekyll
   end
 
   class TwitterTag < Liquid::Tag
-    ERROR_BODY_TEXT = '<p>Tweet could not be processed</p>'
+    ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>"
+
+    attr_writer :cache # for testing
 
     def initialize(_name, params, _tokens)
       super
-      @cache    = FileCache.new('./.tweet-cache')
       args      = params.split(/\s+/).map(&:strip)
       @api_type = args.shift
       @params   = args
     end
 
+    def self.cache_klass
+      FileCache
+    end
+
     def render(context)
-      secrets = extract_twitter_secrets_from_context(context) || extract_twitter_secrets_from_env
+      secrets = extract_twitter_secrets_from_context(context) || extract_twitter_secrets_from_env || missing_keys!
       create_twitter_rest_client(secrets)
       api_client = create_api_client(@api_type, @params)
       response = cached_response(api_client) || live_response(api_client)
@@ -163,25 +178,25 @@ module TwitterJekyll
 
     private
 
-    def html_output_for(response)
-      body = ERROR_BODY_TEXT
+    def cache
+      @cache ||= self.class.cache_klass.new("./.tweet-cache")
+    end
 
-      if response
-        body = response.html || body
-      end
+    def html_output_for(response)
+      body = (response.html if response) || ERROR_BODY_TEXT
 
       "<div class='embed twitter'>#{body}</div>"
     end
 
     def live_response(api_client)
       if response = api_client.fetch
-        @cache.write(api_client.cache_key, response)
+        cache.write(api_client.cache_key, response)
         response
       end
     end
 
     def cached_response(api_client)
-      response = @cache.read(api_client.cache_key)
+      response = cache.read(api_client.cache_key)
       OpenStruct.new(response) unless response.nil?
     end
 
@@ -204,29 +219,34 @@ module TwitterJekyll
       end
     end
 
-    TwitterSecrets = Struct.new(:consumer_key, :consumer_secret, :access_token, :access_token_secret)
-
     def extract_twitter_secrets_from_context(context)
-      TwitterSecrets.new(context.registers[:site].config['twitter']['consumer_key'], context.registers[:site].config['twitter']['consumer_secret'], context.registers[:site].config['twitter']['access_token'], context.registers[:site].config['twitter']['access_token_secret']) if context_has_twitter_secrets?(context)
-    end
+      twitter_secrets = context.registers[:site].config.fetch("twitter", {})
+      return unless store_has_keys?(twitter_secrets, CONTEXT_API_KEYS)
 
-    def context_has_twitter_secrets?(context)
-      twitter_secrets = context.registers[:site].config['twitter'] || {}
-      ['consumer_key', 'consumer_secret', 'access_token', 'access_token_secret'].all? {|s| twitter_secrets.key?(s)}
+      TwitterSecrets.build(twitter_secrets, CONTEXT_API_KEYS)
     end
 
     def extract_twitter_secrets_from_env
-      TwitterSecrets.new(ENV.fetch('TWITTER_CONSUMER_KEY'), ENV.fetch('TWITTER_CONSUMER_SECRET'), ENV.fetch('TWITTER_ACCESS_TOKEN'), ENV.fetch('TWITTER_ACCESS_TOKEN_SECRET'))
+      return unless store_has_keys?(ENV, ENV_API_KEYS)
+
+      TwitterSecrets.build(ENV, ENV_API_KEYS)
+    end
+
+    def store_has_keys?(store, keys)
+      keys.all? { |required_key| store.key?(required_key) }
+    end
+
+    def missing_keys!
+      raise MissingApiKeyError, "Twitter API keys not found. You can specify these in Jekyll config or ENV. Please see README."
     end
   end
 
   class TwitterTagNoCache < TwitterTag
-    def initialize(_tag_name, _text, _token)
-      super
-      @cache = NullCache.new
+    def self.cache_klass
+      NullCache
     end
   end
 end
 
-Liquid::Template.register_tag('twitter', TwitterJekyll::TwitterTag)
-Liquid::Template.register_tag('twitternocache', TwitterJekyll::TwitterTagNoCache)
+Liquid::Template.register_tag("twitter", TwitterJekyll::TwitterTag)
+Liquid::Template.register_tag("twitternocache", TwitterJekyll::TwitterTagNoCache)
