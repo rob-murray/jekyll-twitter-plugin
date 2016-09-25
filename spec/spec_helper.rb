@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "support/jekyll_template"
+require "support/shared_contexts"
 require "jekyll-twitter-plugin"
 require "byebug" if RUBY_VERSION >= "2.0"
 
