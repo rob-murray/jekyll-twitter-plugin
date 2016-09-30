@@ -18,7 +18,8 @@ This plugin replaces the broken [Jekyll Tweet Tag](https://github.com/scottwb/je
 
 The plugin supports the following features:
 
-* Installed via Rubygems
+* Installed via Rubygems.
+* Twitter API secrets read from *ENV* vars or `_config.yml` file.
 * [Oembed](#oembed) - Embed a Tweet in familiar Twitter styling.
 * [Caching](#caching) - Twitter API responses can be cached to avoid hitting request limits.
 
@@ -97,8 +98,10 @@ To use the plugin, in your source content use the tag `twitter` and then pass ad
 | Argument | Required? | Description |
 |---|---|---|
 | `plugin_type` | Yes | Either `twitter` or `twitternocache` (same as `twitter` but does not cache api responses) |
-| `api_type` | No - defaults to *oembed* | The Twitter API to use, check below for supported APIs. |
+| `api_type` | No - defaults to **oembed** | The Twitter API to use, check below for supported APIs. |
 | `*params` | Yes* | Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters. |
+
+* Required arguments depend on the API used.
 
 ### Supported Twitter APIs
 
@@ -113,11 +116,13 @@ This API requires the `status_url` parameter, all others are optional.
 ```liquid
 # With api_type specified
 {% twitter oembed status_url *options %}
-# Autoselected by default
+# 'oembed' autoselected by default
 {% twitter status_url *options %}
 
 # Basic example
 {% twitter oembed https://twitter.com/rubygems/status/518821243320287232 %}
+# Oembed default example
+{% twitter https://twitter.com/rubygems/status/518821243320287232 %}
 # With options
 {% twitter oembed https://twitter.com/rubygems/status/518821243320287232 align='right' width='350' %}
 ```
