@@ -5,6 +5,7 @@ A Liquid tag plugin for Jekyll that renders Tweets from Twitter API.
 [![Build Status](https://travis-ci.org/rob-murray/jekyll-twitter-plugin.svg?branch=master)](https://travis-ci.org/rob-murray/jekyll-twitter-plugin)
 [![Gem Version](https://badge.fury.io/rb/jekyll-twitter-plugin.svg)](http://badge.fury.io/rb/jekyll-twitter-plugin)
 
+
 ### Description
 
 A Liquid tag plugin for [Jekyll](http://jekyllrb.com/) that enables Twitter content to be used in any content served by Jekyll, content is fetched from the [Twitter API](https://dev.twitter.com/home).
@@ -28,9 +29,11 @@ The plugin supports the following features:
 
 * Twitter oauth credentials - Most Twitter api functions now require authentication. Set up your [application](https://dev.twitter.com/apps/new) and get the credentials.
 
+
 ### Usage
 
 As mentioned by [Jekyll's documentation](http://jekyllrb.com/docs/plugins/#installing-a-plugin) you have two options; manually import the source file or require the plugin as a `gem`.
+
 
 #### Require gem
 
@@ -46,6 +49,7 @@ Add the `jekyll-twitter-plugin` to your site `_config.yml` file for Jekyll to im
 gems: ['jekyll-twitter-plugin']
 ```
 
+
 #### Manual import
 
 > Note: this is deprecated and support will be removed in a later version.
@@ -57,6 +61,7 @@ Just download the source file into your `_plugins` directory, e.g.
 $ mkdir -p _plugins && cd _plugins
 $ wget https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/master/lib/jekyll-twitter-plugin.rb
 ```
+
 
 #### Credentials
 
@@ -87,6 +92,7 @@ $ export TWITTER_CONSUMER_KEY=foo etc.
 $ export $(cat .env | xargs)
 ```
 
+
 #### Plugin tag usage
 
 To use the plugin, in your source content use the tag `twitter` and then pass additional parameters to the plugin.
@@ -103,9 +109,11 @@ To use the plugin, in your source content use the tag `twitter` and then pass ad
 
 * Required arguments depend on the API used.
 
+
 ### Supported Twitter APIs
 
 The following Twitter APIs are supported.
+
 
 #### Oembed - Default
 
@@ -127,6 +135,7 @@ This API requires the `status_url` parameter, all others are optional.
 {% twitter oembed https://twitter.com/rubygems/status/518821243320287232 align='right' width='350' %}
 ```
 
+
 ### Output
 
 As with the original plugin, all content will be rendered inside a div with the classes 'embed' and 'twitter'
@@ -145,6 +154,7 @@ If the Twitter client receives one of `Twitter::Error::NotFound, Twitter::Error:
 
 > There was a '{error name}' error fetching Tweet '{Tweet status url}'
 
+
 ### Caching
 
 Twitter API responses can be cached to speed up Jekyll site builds and avoid going over API limits. The reponses will be cached in a directory within your Jekyll project called `.tweet-cache`, ensure that this is not commit to source control.
@@ -161,11 +171,19 @@ It is possible to disable caching by using the specific `twitternocache` tag.
 
 ```
 
+
 ### Contributions
 
 I've tried hard to keep all classes and code in the one `lib/jekyll-twitter-plugin.rb` file so that people can just grab this file and include in their Jekyll `_plugins` directory if they do not want to use the Gem. This will be dropped in a later version.
 
 Please use the GitHub pull-request mechanism to submit contributions.
+
+There is a quick integration test in `spec/integration_tests.rb` that needs API keys and will use the public api and output a file `output_test.html`. Run this with the following command:
+
+```ruby
+$ ruby spec/integration_tests.rb
+```
+
 
 ### License
 
