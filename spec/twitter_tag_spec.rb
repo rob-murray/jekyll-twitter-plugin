@@ -91,7 +91,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
       let(:options) { "" }
 
       it "raises an exception" do
-        expect_to_raise_invalid_args_error do
+        expect_to_raise_invalid_args_error(options) do
           tag = described_class.new(nil, options, nil)
           tag.render(context)
         end
@@ -102,7 +102,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
       let(:options) { "unsupported https://twitter.com/twitter_user/status/12345" }
 
       it "raises an exception" do
-        expect_to_raise_invalid_args_error do
+        expect_to_raise_invalid_args_error(options) do
           tag = described_class.new(nil, options, nil)
           tag.render(context)
         end
@@ -113,7 +113,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
       let(:options) { "https://anything.com/twitter_user/status/12345" }
 
       it "raises an exception" do
-        expect_to_raise_invalid_args_error do
+        expect_to_raise_invalid_args_error(options) do
           tag = described_class.new(nil, options, nil)
           tag.render(context)
         end
@@ -227,10 +227,10 @@ RSpec.describe TwitterJekyll::TwitterTag do
     expect_output_to_match_tag_content(actual, "<p>There was a '#{error}' error fetching Tweet '#{tweet_url}'</p>")
   end
 
-  def expect_to_raise_invalid_args_error
+  def expect_to_raise_invalid_args_error(options)
     raise unless block_given?
 
-    message = "Invalid arguments passed to 'jekyll-twitter-plugin'. Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage."
+    message = "Invalid arguments '#{options}' passed to 'jekyll-twitter-plugin'. Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage."
     expect do
       yield
     end.to raise_error(ArgumentError, message)

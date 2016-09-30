@@ -13,10 +13,10 @@ module TwitterJekyll
       new(*source.values_at(*keys))
     end
   end
-  CONTEXT_API_KEYS  = %w(consumer_key consumer_secret access_token access_token_secret).freeze
-  ENV_API_KEYS      = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
-  TWITTER_URL       = %r{\Ahttps?://twitter\.com\/\w+/}i
-  REFER_TO_README   = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage."
+  CONTEXT_API_KEYS    = %w(consumer_key consumer_secret access_token access_token_secret).freeze
+  ENV_API_KEYS        = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
+  TWITTER_STATUS_URL  = %r{\Ahttps?://twitter\.com/(:#!\/)?\w+/status(es)?/\d+}i
+  REFER_TO_README     = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage."
 
   class FileCache
     def initialize(path)
@@ -202,10 +202,10 @@ module TwitterJekyll
       when DEFAULT_API_TYPE
         api_type, *api_args = args
         [api_type, api_args]
-      when TWITTER_URL
+      when TWITTER_STATUS_URL
         [DEFAULT_API_TYPE, args]
       else
-        invalid_args!
+        invalid_args!(args)
       end
     end
 
@@ -249,8 +249,9 @@ module TwitterJekyll
       raise MissingApiKeyError, "Twitter API keys not found. You can specify these in Jekyll config or ENV. #{REFER_TO_README}"
     end
 
-    def invalid_args!
-      raise ArgumentError, "Invalid arguments passed to 'jekyll-twitter-plugin'. #{REFER_TO_README}"
+    def invalid_args!(arguments)
+      formatted_args = Array(arguments).join(" ")
+      raise ArgumentError, "Invalid arguments '#{formatted_args}' passed to 'jekyll-twitter-plugin'. #{REFER_TO_README}"
     end
   end
 
