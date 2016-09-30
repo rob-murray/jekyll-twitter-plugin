@@ -13,8 +13,10 @@ module TwitterJekyll
       new(*source.values_at(*keys))
     end
   end
-  CONTEXT_API_KEYS = %w(consumer_key consumer_secret access_token access_token_secret).freeze
-  ENV_API_KEYS = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
+  CONTEXT_API_KEYS    = %w(consumer_key consumer_secret access_token access_token_secret).freeze
+  ENV_API_KEYS        = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
+  TWITTER_STATUS_URL  = %r{\Ahttps?://twitter\.com/(:#!\/)?\w+/status(es)?/\d+}i
+  REFER_TO_README     = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage."
 
   class FileCache
     def initialize(path)
@@ -130,12 +132,6 @@ module TwitterJekyll
     end
   end
 
-  class UnknownTypeClient
-    include TwitterJekyll::Cacheable
-
-    def fetch; end
-  end
-
   class ErrorResponse
     attr_reader :error
 
@@ -153,15 +149,14 @@ module TwitterJekyll
   end
 
   class TwitterTag < Liquid::Tag
-    ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>"
+    ERROR_BODY_TEXT   = "<p>Tweet could not be processed</p>"
+    DEFAULT_API_TYPE  = "oembed"
 
     attr_writer :cache # for testing
 
     def initialize(_name, params, _tokens)
       super
-      args      = params.split(/\s+/).map(&:strip)
-      @api_type = args.shift
-      @params   = args
+      @api_type, @params = parse_params(params)
     end
 
     def self.cache_klass
@@ -169,7 +164,7 @@ module TwitterJekyll
     end
 
     def render(context)
-      secrets = extract_twitter_secrets_from_context(context) || extract_twitter_secrets_from_env || missing_keys!
+      secrets = find_secrets!(context)
       create_twitter_rest_client(secrets)
       api_client = create_api_client(@api_type, @params)
       response = cached_response(api_client) || live_response(api_client)
@@ -200,14 +195,24 @@ module TwitterJekyll
       OpenStruct.new(response) unless response.nil?
     end
 
+    def parse_params(params)
+      args = params.split(/\s+/).map(&:strip)
+
+      case args[0]
+      when DEFAULT_API_TYPE
+        api_type, *api_args = args
+        [api_type, api_args]
+      when TWITTER_STATUS_URL
+        [DEFAULT_API_TYPE, args]
+      else
+        invalid_args!(args)
+      end
+    end
+
     def create_api_client(api_type, params)
       klass_name = api_type.capitalize
-      if TwitterJekyll.const_defined?(klass_name)
-        api_client_klass = TwitterJekyll.const_get(klass_name)
-        api_client_klass.new(@twitter_client, params)
-      else
-        UnknownTypeClient.new
-      end
+      api_client_klass = TwitterJekyll.const_get(klass_name)
+      api_client_klass.new(@twitter_client, params)
     end
 
     def create_twitter_rest_client(secrets)
@@ -217,6 +222,10 @@ module TwitterJekyll
         config.access_token        = secrets.access_token
         config.access_token_secret = secrets.access_token_secret
       end
+    end
+
+    def find_secrets!(context)
+      extract_twitter_secrets_from_context(context) || extract_twitter_secrets_from_env || missing_keys!
     end
 
     def extract_twitter_secrets_from_context(context)
@@ -237,7 +246,12 @@ module TwitterJekyll
     end
 
     def missing_keys!
-      raise MissingApiKeyError, "Twitter API keys not found. You can specify these in Jekyll config or ENV. Please see README."
+      raise MissingApiKeyError, "Twitter API keys not found. You can specify these in Jekyll config or ENV. #{REFER_TO_README}"
+    end
+
+    def invalid_args!(arguments)
+      formatted_args = Array(arguments).join(" ")
+      raise ArgumentError, "Invalid arguments '#{formatted_args}' passed to 'jekyll-twitter-plugin'. #{REFER_TO_README}"
     end
   end
 

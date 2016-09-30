@@ -11,14 +11,15 @@ A Liquid tag plugin for [Jekyll](http://jekyllrb.com/) that enables Twitter cont
 
 It is based on the original [Jekyll Tweet Tag](https://github.com/scottwb/jekyll-tweet-tag) from [scottwb](https://github.com/scottwb/) which has not been updated since Twitter changed their API to require certain preconditions. This version uses the excellent [Twitter gem](https://github.com/sferik/twitter) to make requests and handle authentication.
 
-This plugin replaces the broken [Jekyll Tweet Tag](https://github.com/scottwb/jekyll-tweet-tag) plugin mentioned above and uses a different tag name and API - this is by design so that the two plugins can be separated and you can be certain which plugin is being used. You can also install this plugin via Rubygems and require it in your Jekyll `_config.yml` file.
+This plugin replaces the broken [Jekyll Tweet Tag](https://github.com/scottwb/jekyll-tweet-tag) plugin mentioned above and uses a different tag name and API - this is by design so that the two plugins can be separated and you can be certain which plugin is being used. You can also install this plugin via Rubygems and require it in your Jekyll `_config.yml` file. You can use *ENV* variables or `_config.yml` file for your Twitter API secret keys.
 
 
 ### Features
 
 The plugin supports the following features:
 
-* Installed via Rubygems
+* Installed via Rubygems.
+* Twitter API secrets read from *ENV* vars or `_config.yml` file.
 * [Oembed](#oembed) - Embed a Tweet in familiar Twitter styling.
 * [Caching](#caching) - Twitter API responses can be cached to avoid hitting request limits.
 
@@ -46,6 +47,8 @@ gems: ['jekyll-twitter-plugin']
 ```
 
 #### Manual import
+
+> Note: this is deprecated and support will be removed in a later version.
 
 Just download the source file into your `_plugins` directory, e.g.
 
@@ -80,6 +83,8 @@ environment variables.
 
 ```bash
 $ export TWITTER_CONSUMER_KEY=foo etc.
+# Or given a file .env with the keys and secrets
+$ export $(cat .env | xargs)
 ```
 
 #### Plugin tag usage
@@ -90,23 +95,34 @@ To use the plugin, in your source content use the tag `twitter` and then pass ad
 {% plugin_type api_type *params %}
 ```
 
-* `plugin_type` - Either `twitter` or `twitternocache`.
-* `api_type` - The Twitter API to use, check below for supported APIs.
-* `*params` - Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters.
+| Argument | Required? | Description |
+|---|---|---|
+| `plugin_type` | Yes | Either `twitter` or `twitternocache` (same as `twitter` but does not cache api responses) |
+| `api_type` | No - defaults to **oembed** | The Twitter API to use, check below for supported APIs. |
+| `*params` | Yes* | Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters. |
+
+* Required arguments depend on the API used.
 
 ### Supported Twitter APIs
 
 The following Twitter APIs are supported.
 
-#### Oembed
+#### Oembed - Default
 
 The [oembed](https://dev.twitter.com/rest/reference/get/statuses/oembed) API returns html snippet to embed in your app, this will be rendered in the familiar Twitter style.
 
-```liquid
-{% twitter oembed status_url *options %}
+This API requires the `status_url` parameter, all others are optional.
 
-# Example
+```liquid
+# With api_type specified
+{% twitter oembed status_url *options %}
+# 'oembed' autoselected by default
+{% twitter status_url *options %}
+
+# Basic example
 {% twitter oembed https://twitter.com/rubygems/status/518821243320287232 %}
+# Oembed default example
+{% twitter https://twitter.com/rubygems/status/518821243320287232 %}
 # With options
 {% twitter oembed https://twitter.com/rubygems/status/518821243320287232 align='right' width='350' %}
 ```
@@ -147,7 +163,7 @@ It is possible to disable caching by using the specific `twitternocache` tag.
 
 ### Contributions
 
-I've tried hard to keep all classes and code in the one `lib/jekyll-twitter-plugin.rb` file so that people can just grab this file and include in their Jekyll `_plugins` directory if they do not want to use the Gem. This may have to be dropped if the one file gets too overwhelming.
+I've tried hard to keep all classes and code in the one `lib/jekyll-twitter-plugin.rb` file so that people can just grab this file and include in their Jekyll `_plugins` directory if they do not want to use the Gem. This will be dropped in a later version.
 
 Please use the GitHub pull-request mechanism to submit contributions.
 

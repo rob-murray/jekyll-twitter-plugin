@@ -12,8 +12,8 @@ OUTPUT_FILENAME = "output_test.html"
 OPTIONS = [
   "oembed https://twitter.com/rubygems/status/518821243320287232",
   "oembed https://twitter.com/rubygems/status/518821243320287232 align='right' width='350'",
-  "oembed https://twitter.com/rubygems/status/missing",
-  "notsupported https://twitter.com/rubygems/status/missing"
+  "https://twitter.com/rubygems/status/518821243320287232",
+  "oembed https://twitter.com/rubygems/status/missing"
 ].freeze
 
 COLOUR_MAP = {
