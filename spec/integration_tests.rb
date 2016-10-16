@@ -7,13 +7,18 @@ $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require_relative "./support/jekyll_template"
 require "jekyll-twitter-plugin"
 require "erb"
+require "byebug"
 
 OUTPUT_FILENAME = "output_test.html"
 OPTIONS = [
-  "oembed https://twitter.com/rubygems/status/518821243320287232",
-  "oembed https://twitter.com/rubygems/status/518821243320287232 align='right' width='350'",
+  "https://twitter.com/realDonaldTrump maxwidth=300 limit=5",
+  "https://twitter.com/rubygems",
   "https://twitter.com/rubygems/status/518821243320287232",
-  "oembed https://twitter.com/rubygems/status/missing"
+  "https://twitter.com/rubygems/status/11",
+  "https://twitter.com/rubygems/status/518821243320287232 align='right' width='350'",
+  "https://twitter.com/Ace_Tate/status/225611299009216512",
+  "https://twitter.com/FeelsGood2BeMe/status/225456333032398848",
+  "oembed https://twitter.com/rubygems/status/518821243320287232",
 ].freeze
 
 COLOUR_MAP = {

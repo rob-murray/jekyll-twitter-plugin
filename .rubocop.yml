@@ -14,3 +14,7 @@ Style/FileName:
 
 Lint/AssignmentInCondition:
   Enabled: false
+
+AllCops:
+  Exclude:
+    - 'spec/integration_tests.rb'
