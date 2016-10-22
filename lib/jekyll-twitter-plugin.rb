@@ -161,7 +161,7 @@ module TwitterJekyll
     # Return Twitter response or error html
     # @api private
     def html_output_for(response)
-      body = (response&.html) || ERROR_BODY_TEXT
+      body = (response.html if response) || ERROR_BODY_TEXT
 
       "<div class='jekyll-twitter-plugin'>#{body}</div>"
     end
