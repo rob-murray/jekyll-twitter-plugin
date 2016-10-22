@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = "A Liquid tag plugin for Jekyll that renders Tweets from Twitter API"
   spec.homepage      = "https://github.com/rob-murray/jekyll-twitter-plugin"
   spec.license       = "MIT"
-  spec.required_ruby_version = ">= 1.9.3"
+  spec.required_ruby_version = ">= 2.0.0"
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})

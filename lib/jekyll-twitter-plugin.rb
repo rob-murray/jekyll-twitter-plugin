@@ -14,7 +14,7 @@ module TwitterJekyll
   # TODO: remove after deprecation cycle
   CONTEXT_API_KEYS    = %w(consumer_key consumer_secret access_token access_token_secret).freeze
   ENV_API_KEYS        = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
-  REFER_TO_README     = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage."
+  REFER_TO_README     = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage.".freeze
   LIBRARY_VERSION = "jekyll-twitter-plugin v2.0" # TODO: format
   REQUEST_HEADERS = { "User-Agent" => LIBRARY_VERSION }.freeze
 
@@ -96,7 +96,7 @@ module TwitterJekyll
   # Holds the URI were going to request with any parameters
   # @api private
   ApiRequest = Struct.new(:entity_url, :params) do
-    TWITTER_API_URL = "https://publish.twitter.com/oembed"
+    TWITTER_API_URL = "https://publish.twitter.com/oembed".freeze
 
     # Return a URI for Twitter API with query params
     def to_uri
@@ -124,8 +124,8 @@ module TwitterJekyll
   # Class to respond to Jekyll tag; entry point to library
   # @api public
   class TwitterTag < Liquid::Tag
-    ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>"
-    OEMBED_ARG      = "oembed"
+    ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>".freeze
+    OEMBED_ARG      = "oembed".freeze
 
     attr_writer :cache # for testing
 
