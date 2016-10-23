@@ -1,4 +1,4 @@
-<img alt="Screenshot embedded tweet" src="https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/media/embedded-tweet.png" align="right" />
+<img alt="Screenshot embedded tweet" src="https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/master/media/embedded-tweet.png" align="right" />
 
 # jekyll-twitter-plugin
 
@@ -24,25 +24,25 @@ The [Publish platform](https://publish.twitter.com) allows Twitter users to cura
 
 An example of a Tweet - `{% twitter https://twitter.com/rubygems/status/518821243320287232 %}`
 
-![Embedded tweet](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/media/embedded-tweet.png "Screenshot of embedded tweet")
+![Embedded tweet](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/master/media/embedded-tweet.png "Screenshot of embedded tweet")
 
 #### Timeline
 
 An example of a Timeline - `{% twitter https://twitter.com/jekyllrb maxwidth=500 limit=5 %}`
 
-![Embedded timeline](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/media/embedded-timeline.png "Screenshot of embedded timeline")
+![Embedded timeline](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/master/media/embedded-timeline.png "Screenshot of embedded timeline")
 
 #### Grid Timeline
 
 An example of a Grid Timeline - `{% twitter https://twitter.com/TwitterDev/timelines/539487832448843776 limit=5 widget_type=grid maxwidth=500 %}`
 
-![Embedded Grid Timeline](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/media/embedded-grid.png "Screenshot of embedded Grid Timeline")
+![Embedded Grid Timeline](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/master/media/embedded-grid.png "Screenshot of embedded Grid Timeline")
 
 #### Moment
 
 An example of a Moment - `{% twitter https://twitter.com/i/moments/650667182356082688 maxwidth=500 %}`
 
-![Embedded moment](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/media/embedded-moment.png "Screenshot of embedded moment")
+![Embedded moment](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/master/media/embedded-moment.png "Screenshot of embedded moment")
 
 
 ### Features
@@ -83,7 +83,7 @@ Just download the source file into your `_plugins` directory, e.g.
 ```bash
 # Create the _plugins dir if needed and download project_version_tag plugin
 $ mkdir -p _plugins && cd _plugins
-$ wget https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/lib/jekyll-twitter-plugin.rb
+$ wget https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/master/lib/jekyll-twitter-plugin.rb
 ```
 
 
