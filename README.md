@@ -22,25 +22,25 @@ The [Publish platform](https://publish.twitter.com) allows Twitter users to cura
 
 #### Tweet
 
-An example of a Tweet - `twitter https://twitter.com/rubygems/status/518821243320287232`
+An example of a Tweet - `{% twitter https://twitter.com/rubygems/status/518821243320287232 %}`
 
 ![Embedded tweet](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/media/embedded-tweet.png "Screenshot of embedded tweet")
 
 #### Timeline
 
-An example of a Timeline - `twitter https://twitter.com/jekyllrb maxwidth=500 limit=5`
+An example of a Timeline - `{% twitter https://twitter.com/jekyllrb maxwidth=500 limit=5 %}`
 
 ![Embedded timeline](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/media/embedded-timeline.png "Screenshot of embedded timeline")
 
 #### Grid Timeline
 
-An example of a Grid Timeline - `twitter https://twitter.com/TwitterDev/timelines/539487832448843776 limit=5 widget_type=grid maxwidth=500`
+An example of a Grid Timeline - `{% twitter https://twitter.com/TwitterDev/timelines/539487832448843776 limit=5 widget_type=grid maxwidth=500 %}`
 
 ![Embedded Grid Timeline](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/media/embedded-grid.png "Screenshot of embedded Grid Timeline")
 
 #### Moment
 
-An example of a Moment - `twitter https://twitter.com/i/moments/650667182356082688 maxwidth=500`
+An example of a Moment - `{% twitter https://twitter.com/i/moments/650667182356082688 maxwidth=500 %}`
 
 ![Embedded moment](https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publish-api/media/embedded-moment.png "Screenshot of embedded moment")
 
@@ -93,6 +93,9 @@ To use the plugin, in your source content use the tag `twitter` and then pass ad
 
 ```liquid
 {% plugin_type twitter_url *options %}
+
+# Example for timeline of the **jekyllrb** user with a maximum of 5 Tweets and with a width of 500px
+{% twitter https://twitter.com/jekyllrb maxwidth=500 limit=5 %}
 ```
 
 | Argument | Required? | Description |
@@ -100,14 +103,6 @@ To use the plugin, in your source content use the tag `twitter` and then pass ad
 | `plugin_type` | Yes | Either `twitter` or `twitternocache` (same as `twitter` but does not cache api responses) |
 | `twitter_url` | Yes | The Twitter URL to use, check below for supported URLs. |
 | `*options` | No | Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters. |
-
-#### Example
-
-This will render the Timeline of the **jekyllrb** user with a maximum of 5 Tweets and with a width of 500px.
-
-```liquid
-twitter https://twitter.com/jekyllrb maxwidth=500 limit=5
-```
 
 
 ### Supported Twitter URLs
@@ -134,7 +129,7 @@ All pairs of options and values after the URL are passed to the API, the paramet
 For exampled if you wanted to limit the width of the embedded content then the API supports a `maxwidth` option so you could construct the tag as below to limit it to a value of 500 (pixels).
 
 ```liquid
-twitter https://twitter.com/jekyllrb maxwidth=500
+{% twitter https://twitter.com/jekyllrb maxwidth=500 %}
 ```
 
 ### Authentication
