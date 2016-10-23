@@ -11,11 +11,12 @@ RSpec.shared_context "without cached response" do
   end
 end
 
-RSpec.shared_context "with any oembed request and response" do
-  let(:options) { "oembed https://twitter.com/twitter_user/status/12345" }
-  let(:response) { OpenStruct.new(html: "<p>tweet html</p>") }
+RSpec.shared_context "with a normal request and response" do
+  let(:arguments) { "https://twitter.com/twitter_user/status/12345" }
+  let(:response) { { html: "<p>tweet html</p>" } }
 
   before do
-    allow(api_client).to receive(:oembed).and_return(response)
+    allow(api_client).to receive(:fetch).and_return(response)
+    allow(TwitterJekyll::ApiClient).to receive(:new).and_return(api_client)
   end
 end
