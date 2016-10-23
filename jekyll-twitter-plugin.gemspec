@@ -5,10 +5,10 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "jekyll-twitter-plugin"
-  spec.version       = "2.0.0.beta"
+  spec.version       = "2.0.0"
   spec.authors       = ["Rob Murray"]
   spec.email         = ["robmurray17@gmail.com"]
-  spec.summary       = "A Liquid tag plugin for Jekyll that renders Tweets from Twitter API"
+  spec.summary       = "A Liquid tag plugin for Jekyll blogging engine that embeds Tweets, Timelines and more from Twitter API."
   spec.homepage      = "https://github.com/rob-murray/jekyll-twitter-plugin"
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 2.0.0"
