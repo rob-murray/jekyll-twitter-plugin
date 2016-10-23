@@ -50,7 +50,7 @@ An example of a Moment - `twitter https://twitter.com/i/moments/6506671823560826
 The plugin supports the following features:
 
 * Installed via Rubygems.
-* [Customisation](#customisation) - All customisation parameters passed to Twitter API.
+* [Customisation](#customisation) - All customisation options passed to Twitter API.
 * [Authentication](#authentication) - No authentication required!
 * [Caching](#caching) - Twitter API responses can be cached to speed up builds.
 
@@ -89,7 +89,7 @@ $ wget https://raw.githubusercontent.com/rob-murray/jekyll-twitter-plugin/publis
 
 #### Plugin tag usage
 
-To use the plugin, in your source content use the tag `twitter` and then pass additional parameters to the plugin.
+To use the plugin, in your source content use the tag `twitter` and then pass additional options to the plugin, these are passed to the API.
 
 ```liquid
 {% plugin_type twitter_url *options %}
@@ -99,7 +99,7 @@ To use the plugin, in your source content use the tag `twitter` and then pass ad
 |---|---|---|
 | `plugin_type` | Yes | Either `twitter` or `twitternocache` (same as `twitter` but does not cache api responses) |
 | `twitter_url` | Yes | The Twitter URL to use, check below for supported URLs. |
-| `*options` | Yes* | Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters. |
+| `*options` | No | Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters. |
 
 #### Example
 
@@ -146,7 +146,7 @@ The API does not require any authentication.
 
 ### Output
 
-All content will be rendered inside a div with the class 'jekyll-twitter-plugin'
+All content will be rendered inside a div with the class `jekyll-twitter-plugin`.
 
 ```html
 <div class='jekyll-twitter-plugin'>
@@ -170,7 +170,7 @@ If we receive an error from the API then a message will be cached and rendered s
 
 Twitter API responses can be cached to speed up Jekyll site builds. The reponses will be cached in a directory within your Jekyll project called `.tweet-cache`, this should not be committed to source control.
 
-Caching is enabled by default.
+Caching is enabled by using the `twitter` tag.
 
 It is possible to disable caching by using the specific `twitternocache` tag.
 
