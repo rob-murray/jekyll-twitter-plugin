@@ -11,11 +11,13 @@ require "byebug"
 
 OUTPUT_FILENAME = "output_test.html"
 OPTIONS = [
-  "https://twitter.com/realDonaldTrump maxwidth=300 limit=5",
+  "https://twitter.com/jekyllrb maxwidth=500 limit=5",
   "https://twitter.com/rubygems",
+  "https://twitter.com/i/moments/650667182356082688 maxwidth=500",
+  "https://twitter.com/TwitterDev/timelines/539487832448843776 limit=5 widget_type=grid maxwidth=500",
   "https://twitter.com/rubygems/status/518821243320287232",
   "https://twitter.com/rubygems/status/11",
-  "https://twitter.com/rubygems/status/518821243320287232 align='right' width='350'",
+  "https://twitter.com/rubygems/status/518821243320287232 align=right width=350",
   "https://twitter.com/Ace_Tate/status/225611299009216512",
   "https://twitter.com/FeelsGood2BeMe/status/225456333032398848",
   "oembed https://twitter.com/rubygems/status/518821243320287232",
