@@ -12,11 +12,11 @@ require "digest"
 #
 module TwitterJekyll
   # TODO: remove after deprecation cycle
-  CONTEXT_API_KEYS    = %w(consumer_key consumer_secret access_token access_token_secret).freeze
-  ENV_API_KEYS        = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
-  REFER_TO_README     = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage.".freeze
-  LIBRARY_VERSION = "jekyll-twitter-plugin v2.0" # TODO: format
-  REQUEST_HEADERS = { "User-Agent" => LIBRARY_VERSION }.freeze
+  CONTEXT_API_KEYS  = %w(consumer_key consumer_secret access_token access_token_secret).freeze
+  ENV_API_KEYS      = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
+  REFER_TO_README   = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage.".freeze
+  LIBRARY_VERSION   = "jekyll-twitter-plugin-v2.0.0".freeze
+  REQUEST_HEADERS   = { "User-Agent" => LIBRARY_VERSION }.freeze
 
   # Cache class that writes to filesystem
   # TODO: Do i really need to cache?
@@ -68,24 +68,34 @@ module TwitterJekyll
     # Perform API request; return hash with html content
     def fetch(api_request)
       uri = api_request.to_uri
-      response = Net::HTTP.start(uri.host, use_ssl: true) do |http|
+      response = Net::HTTP.start(uri.host, use_ssl: api_request.ssl?) do |http|
+        http.read_timeout = 5
+        http.open_timeout = 5
         http.get uri.request_uri, REQUEST_HEADERS
       end
 
+      handle_response(api_request, response)
+
+    rescue Timeout::Error => e
+      ErrorResponse.new(api_request, e.class.name).to_h
+    end
+
+    private
+
+    def handle_response(api_request, response)
       case response
       when Net::HTTPSuccess
         JSON.parse(response.body)
       else
-        ErrorResponse.new(api_request, response).to_h
+        ErrorResponse.new(api_request, response.message).to_h
       end
     end
   end
 
   # @api private
-  ErrorResponse = Struct.new(:request, :response) do
+  ErrorResponse = Struct.new(:request, :message) do
     def html
-      # "There was a '#{exception.class.name}' error fetching Tweet '#{@status_url}'"
-      "<p>The url '#{request.entity_url}' returned error: #{response.message}</p>"
+      "<p>There was a '#{message}' error fetching URL: '#{request.entity_url}'</p>"
     end
 
     def to_h
@@ -97,6 +107,11 @@ module TwitterJekyll
   # @api private
   ApiRequest = Struct.new(:entity_url, :params) do
     TWITTER_API_URL = "https://publish.twitter.com/oembed".freeze
+
+    # Always;
+    def ssl?
+      true
+    end
 
     # Return a URI for Twitter API with query params
     def to_uri

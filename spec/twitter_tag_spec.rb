@@ -95,6 +95,19 @@ RSpec.describe TwitterJekyll::TwitterTag do
         end
       end
 
+      context "with api request that times out" do
+        before do
+          stub_api.to_timeout
+        end
+
+        it "renders error response and writes to cache" do
+          expect(cache).to receive(:write).with(an_instance_of(String), an_instance_of(Hash))
+
+          output = subject.render(context)
+          expect_output_to_have_error(output, "Timeout::Error")
+        end
+      end
+
       context "with the oembed api type as the first argument" do
         let(:arguments) { "oembed https://twitter.com/twitter_user/status/12345" }
         before do
@@ -198,8 +211,12 @@ RSpec.describe TwitterJekyll::TwitterTag do
   private
 
   def stub_api_request(response)
-    stub_request(:get, /publish.twitter.com/)
+    stub_api
       .to_return(response)
+  end
+
+  def stub_api
+    stub_request(:get, /publish.twitter.com/)
   end
 
   def empty_jekyll_context
@@ -217,7 +234,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
   end
 
   def expect_output_to_have_error(actual, error, tweet_url = "https://twitter.com/twitter_user/status/12345")
-    expect_output_to_match_tag_content(actual, "<p>The url '#{tweet_url}' returned error: #{error}</p>")
+    expect_output_to_match_tag_content(actual, "<p>There was a '#{error}' error fetching URL: '#{tweet_url}'</p>")
   end
 
   def expect_to_raise_invalid_args_error(options)
