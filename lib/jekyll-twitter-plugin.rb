@@ -11,12 +11,14 @@ require "digest"
 # https://github.com/rob-murray/jekyll-twitter-plugin
 #
 module TwitterJekyll
+  VERSION = "2.0.0".freeze
+  REFER_TO_README   = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage.".freeze
+  LIBRARY_VERSION   = "jekyll-twitter-plugin-v#{VERSION}".freeze
+  REQUEST_HEADERS   = { "User-Agent" => LIBRARY_VERSION }.freeze
+
   # TODO: remove after deprecation cycle
   CONTEXT_API_KEYS  = %w(consumer_key consumer_secret access_token access_token_secret).freeze
   ENV_API_KEYS      = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
-  REFER_TO_README   = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage.".freeze
-  LIBRARY_VERSION   = "jekyll-twitter-plugin-v2.0.0".freeze
-  REQUEST_HEADERS   = { "User-Agent" => LIBRARY_VERSION }.freeze
 
   # Cache class that writes to filesystem
   # TODO: Do i really need to cache?

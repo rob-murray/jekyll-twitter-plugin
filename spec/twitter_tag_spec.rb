@@ -104,7 +104,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
           expect(cache).to receive(:write).with(an_instance_of(String), an_instance_of(Hash))
 
           output = subject.render(context)
-          expect_output_to_have_error(output, "Timeout::Error")
+          expect_output_to_have_error(output, "Net::OpenTimeout")
         end
       end
 
