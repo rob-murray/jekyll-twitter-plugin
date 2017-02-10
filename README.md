@@ -112,6 +112,7 @@ The Twitter URLs that are supported depend on Twitter. We pass the url and all p
 ##### Tweet:
 
 * [https://dev.twitter.com/web/overview](https://dev.twitter.com/web/overview)
+* [https://dev.twitter.com/rest/reference/get/statuses/oembed](https://dev.twitter.com/rest/reference/get/statuses/oembed)
 * [https://dev.twitter.com/web/embedded-tweets/parameters](https://dev.twitter.com/web/embedded-tweets/parameters)
 
 ##### Timeline:
