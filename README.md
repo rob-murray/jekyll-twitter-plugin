@@ -2,7 +2,7 @@
 
 # jekyll-twitter-plugin
 
-A Liquid tag plugin for Jekyll blogging engine that embeds Tweets, Timelines and more from Twitter API.
+A Liquid tag plugin for the Jekyll blogging engine that embeds Tweets, Timelines and more from Twitter API.
 
 [![Build Status](https://travis-ci.org/rob-murray/jekyll-twitter-plugin.svg?branch=master)](https://travis-ci.org/rob-murray/jekyll-twitter-plugin)
 [![Gem Version](https://badge.fury.io/rb/jekyll-twitter-plugin.svg)](http://badge.fury.io/rb/jekyll-twitter-plugin)
