@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 # Basic integration example - run code to produce html output
 #
-# * Requires .env populated with valid Twitter API creds.
-#
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require_relative "./support/jekyll_template"
 require "jekyll-twitter-plugin"
@@ -76,9 +74,9 @@ class TwitterRenderer
 end
 
 def main
-  rederer = TwitterRenderer.new(OPTIONS)
+  renderer = TwitterRenderer.new(OPTIONS)
   File.open(OUTPUT_FILENAME, "w") do |f|
-    f.write rederer.render
+    f.write renderer.render
   end
 end
 

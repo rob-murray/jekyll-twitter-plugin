@@ -144,11 +144,18 @@ module TwitterJekyll
     ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>".freeze
     OEMBED_ARG      = "oembed".freeze
 
+    URL_STRING = /^("|')?(http|https):\/\//i
+
     attr_writer :cache # for testing
 
     def initialize(_name, params, _tokens)
       super
-      @api_request = parse_params(params)
+      # puts params.inspect
+      if params =~ URL_STRING
+        @api_request = parse_params(params)
+      else
+        @variable_param = params
+      end
     end
 
     # Class that implements caching strategy
@@ -160,6 +167,8 @@ module TwitterJekyll
     # Return html string for Jekyll engine
     # @api public
     def render(context)
+      @api_request ||= parse_params context[@variable_param]
+
       api_secrets_deprecation_warning(context) # TODO: remove after deprecation cycle
       response = cached_response || live_response
       html_output_for(response)
@@ -202,7 +211,7 @@ module TwitterJekyll
     # Return an `ApiRequest` with the url and arguments
     # @api private
     def parse_params(params)
-      args = params.split(/\s+/).map(&:strip)
+      args = params.to_s.gsub(/"|'/, "").split(/\s+/).map(&:strip)
       invalid_args!(args) unless args.any?
 
       if args[0].to_s == OEMBED_ARG # TODO: remove after deprecation cycle
