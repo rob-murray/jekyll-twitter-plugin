@@ -71,7 +71,7 @@ gem 'jekyll-twitter-plugin'
 Add the `jekyll-twitter-plugin` to your site `_config.yml` file for Jekyll to import the plugin as a gem.
 
 ```ruby
-gems: ['jekyll-twitter-plugin']
+plugins: ['jekyll-twitter-plugin']
 ```
 
 #### Manual import
