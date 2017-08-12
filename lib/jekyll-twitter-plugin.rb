@@ -153,9 +153,9 @@ module TwitterJekyll
 
       # Test if first arg is a URL, otherwise its a Jekyll variable
       if params =~ URL_STRING
-        @api_request = parse_params(params)
+        @api_request = parse_params_from_string(params)
       else
-        @variable_param = params
+        @variable_params = normalize_string_params(params)
       end
     end
 
@@ -168,7 +168,11 @@ module TwitterJekyll
     # Return html string for Jekyll engine
     # @api public
     def render(context)
-      @api_request ||= parse_params context[@variable_param]
+      unless @api_request
+        url, *params = @variable_params
+        url = context[url]
+        @api_request ||= parse_params_from_array [url, *params]
+      end
 
       api_secrets_deprecation_warning(context) # TODO: remove after deprecation cycle
       response = cached_response || live_response
@@ -209,10 +213,18 @@ module TwitterJekyll
       build_response(response) unless response.nil?
     end
 
+    def parse_params_from_string(str)
+      args = normalize_string_params(str)
+      parse_params(args)
+    end
+
+    def parse_params_from_array(arr)
+      parse_params(arr)
+    end
+
     # Return an `ApiRequest` with the url and arguments
     # @api private
-    def parse_params(params)
-      args = normalize_params(params)
+    def parse_params(args)
       invalid_args!(args) unless args.any?
 
       if args[0].to_s == OEMBED_ARG # TODO: remove after deprecation cycle
@@ -226,7 +238,7 @@ module TwitterJekyll
 
     # Take input arguments, remove quotes & return array of argument values
     # @api private
-    def normalize_params(str)
+    def normalize_string_params(str)
       str.to_s.gsub(/"|'/, "").split(/\s+/).map(&:strip)
     end
 

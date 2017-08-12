@@ -1,11 +1,12 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "jekyll-twitter-plugin"
-  spec.version       = "2.0.0"
+  spec.version       = "2"
   spec.authors       = ["Rob Murray"]
   spec.email         = ["robmurray17@gmail.com"]
   spec.summary       = "A Liquid tag plugin for Jekyll blogging engine that embeds Tweets, Timelines and more from Twitter API."
