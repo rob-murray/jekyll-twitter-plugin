@@ -144,17 +144,19 @@ module TwitterJekyll
     ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>".freeze
     OEMBED_ARG      = "oembed".freeze
 
-    URL_STRING = /^("|')?(http|https):\/\//i
+    URL_OR_STRING_PARAM = /^("|')?(http|https):\/\//i
 
     attr_writer :cache # for testing
 
     def initialize(_name, params, _tokens)
       super
 
-      # Test if first arg is a URL, otherwise its a Jekyll variable
-      if params =~ URL_STRING
+      # Test if first arg is a URL, otherwise its a Jekyll variable..
+      #   ..or starts with oembed. TODO: remove after deprecation cycle
+      if params =~ URL_OR_STRING_PARAM || params.to_s.start_with?(OEMBED_ARG)
         @api_request = parse_params_from_string(params)
       else
+        @api_request = nil
         @variable_params = normalize_string_params(params)
       end
     end
@@ -225,7 +227,7 @@ module TwitterJekyll
     # Return an `ApiRequest` with the url and arguments
     # @api private
     def parse_params(args)
-      invalid_args!(args) unless args.any?
+      invalid_args!(args) unless args.compact.any?
 
       if args[0].to_s == OEMBED_ARG # TODO: remove after deprecation cycle
         arguments_deprecation_warning(args)

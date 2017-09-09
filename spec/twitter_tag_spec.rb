@@ -127,6 +127,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
   describe "parsing arguments" do
     context "without any arguments" do
       let(:arguments) { "" }
+      let(:context) { double("context", registers: { site: double(config: {}) }, :[] => nil) }
 
       it "raises an exception" do
         expect_to_raise_invalid_args_error(arguments) do
