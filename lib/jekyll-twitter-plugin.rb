@@ -179,6 +179,7 @@ module TwitterJekyll
     # @api private
     def html_output_for(response)
       body = (response.html if response) || ERROR_BODY_TEXT
+      body = body.delete!("\n")
 
       "<div class='jekyll-twitter-plugin'>#{body}</div>"
     end
