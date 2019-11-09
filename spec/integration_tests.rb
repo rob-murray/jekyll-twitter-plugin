@@ -47,7 +47,6 @@ class TwitterRenderer
   def render
     ERB.new(template)
        .result(binding)
-       .gsub!("src=\"//", "src=\"https://")
   end
 
   private
