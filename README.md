@@ -98,11 +98,11 @@ To use the plugin, in your source content use the tag `twitter` and then pass ad
 {% twitter https://twitter.com/jekyllrb maxwidth=500 limit=5 %}
 ```
 
-| Argument | Required? | Description |
-|---|---|---|
-| `plugin_type` | Yes | Either `twitter` or `twitternocache` (same as `twitter` but does not cache api responses) |
-| `twitter_url` | Yes | The Twitter URL to use, check below for supported URLs. |
-| `*options` | No | Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters. |
+| Argument      | Required? | Description                                                                                                                   |
+| ---           | ---       | ---                                                                                                                           |
+| `plugin_type` | Yes       | Either `twitter` or `twitternocache` (same as `twitter` but does not cache api responses)                                     |
+| `twitter_url` | Yes       | The Twitter URL to use, check below for supported URLs.                                                                       |
+| `*options`    | No        | Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters. |
 
 
 ### Supported Twitter URLs

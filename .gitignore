@@ -38,3 +38,4 @@ Gemfile.lock
 .env
 output_test.html
 .tweet-cache
+test_app/

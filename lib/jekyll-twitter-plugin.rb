@@ -30,23 +30,22 @@ module TwitterJekyll
     end
 
     def read(key)
-      file_to_read = cache_file(cache_filename(key))
+      file_to_read = cache_file(key)
       JSON.parse(File.read(file_to_read)) if File.exist?(file_to_read)
     end
 
     def write(key, data)
-      file_to_write = cache_file(cache_filename(key))
-      data_to_write = JSON.generate data.to_h
+      file_to_write = cache_file(key)
 
       File.open(file_to_write, "w") do |f|
-        f.write(data_to_write)
+        f.write(JSON.generate(data.to_h))
       end
     end
 
     private
 
-    def cache_file(filename)
-      File.join(@cache_folder, filename)
+    def cache_file(key)
+      File.join(@cache_folder, cache_filename(key))
     end
 
     def cache_filename(cache_key)
@@ -77,7 +76,6 @@ module TwitterJekyll
       end
 
       handle_response(api_request, response)
-
     rescue Timeout::Error => e
       ErrorResponse.new(api_request, e.class.name).to_h
     end
