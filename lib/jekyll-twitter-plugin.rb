@@ -149,12 +149,13 @@ module TwitterJekyll
     def initialize(_name, params, _tokens)
       super
 
-      # Test if first arg is a URL, otherwise its a Jekyll variable..
-      #   ..or starts with oembed. TODO: remove after deprecation cycle
+      # Test if first arg is a URL or starts with oembed,
+      # otherwise its a Jekyll variable. TODO: remove oembed after deprecation cycle
       if params =~ URL_OR_STRING_PARAM || params.to_s.start_with?(OEMBED_ARG)
+        @fetch_from_context = false
         @api_request = parse_params_from_string(params)
       else
-        @api_request = nil
+        @fetch_from_context = true
         @variable_params = normalize_string_params(params)
       end
     end
@@ -168,10 +169,10 @@ module TwitterJekyll
     # Return html string for Jekyll engine
     # @api public
     def render(context)
-      unless @api_request
-        url, *params = @variable_params
-        url = context[url]
-        @api_request ||= parse_params_from_array [url, *params]
+      if fetch_from_context?
+        variable_name, *params = @variable_params
+        tweet_url = context[variable_name]
+        @api_request = parse_params_from_array [tweet_url, *params]
       end
 
       api_secrets_deprecation_warning(context) # TODO: remove after deprecation cycle
@@ -180,6 +181,10 @@ module TwitterJekyll
     end
 
     private
+
+    def fetch_from_context?
+      @fetch_from_context
+    end
 
     def cache
       @cache ||= self.class.cache_klass.new("./.tweet-cache")
@@ -233,7 +238,7 @@ module TwitterJekyll
       end
 
       url, *api_args = args
-      ApiRequest.new(url, parse_args(api_args))
+      ApiRequest.new(url, hash_from_args(api_args))
     end
 
     # Take input arguments, remove quotes & return array of argument values
@@ -244,20 +249,20 @@ module TwitterJekyll
 
     # Transform 'a=b x=y' tag arguments into { "a" => "b", "x" => "y" }
     # @api private
-    def parse_args(args)
-      args.each_with_object({}) do |arg, params|
+    def hash_from_args(args)
+      args.each_with_object({}) do |arg, results|
         k, v = arg.split("=").map(&:strip)
         if k && v
           v = Regexp.last_match[1] if v =~ /^'(.*)'$/
-          params[k] = v
+          results[k] = v
         end
       end
     end
 
     # Format a response hash
     # @api private
-    def build_response(h)
-      OpenStruct.new(h)
+    def build_response(response_hash)
+      OpenStruct.new(response_hash)
     end
 
     # TODO: remove after deprecation cycle

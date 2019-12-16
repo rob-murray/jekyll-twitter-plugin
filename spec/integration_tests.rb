@@ -51,9 +51,9 @@ class TwitterRenderer
 
   attr_reader :options, :jekyll_context
 
-  def render_twitter_tag(params)
-    say_with_colour "Fetching with params: #{params}", :yellow
-    TwitterJekyll::TwitterTag.new(nil, params, nil).render(jekyll_context)
+  def render_twitter_tag(option)
+    say_with_colour "Fetching with option: #{option}", :yellow
+    TwitterJekyll::TwitterTag.new(nil, option, nil).render(jekyll_context)
   end
 
   def template
