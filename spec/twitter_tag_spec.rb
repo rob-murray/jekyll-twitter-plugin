@@ -30,7 +30,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
   end
 
   shared_context "called with deprecated oembed argument url" do
-    # {% twitter oembed https://twitter.com/twitter_user/status/12345 %}
+    # {% twitter oembed https://twitter.com/twitter_user/status/12345 option=value %}
     let(:arguments) { "oembed https://twitter.com/twitter_user/status/12345" }
     let(:context) { empty_jekyll_context }
 
@@ -38,7 +38,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
   end
 
   shared_context "called with url" do
-    # {% twitter https://twitter.com/twitter_user/status/12345 %}
+    # {% twitter https://twitter.com/twitter_user/status/12345 option=value %}
     let(:arguments) { "https://twitter.com/twitter_user/status/12345" }
     let(:context) { empty_jekyll_context }
 
@@ -46,7 +46,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
   end
 
   shared_context "called with a page var" do
-    # {% twitter page.tweet %}
+    # {% twitter page.tweet option=value %}
     let(:arguments) { "page.tweet" }
     let(:context) { jekyll_context_with(arguments, params) }
     let(:params) { "https://twitter.com/twitter_user/status/12345" }
@@ -55,9 +55,13 @@ RSpec.describe TwitterJekyll::TwitterTag do
   end
 
   shared_context "called in a loop with a local var" do
+    # This is the same as above but ensures that same instance can render different contexts
     # {% for tweet in page.tweets %}
-    #   {% twitter tweet %}
+    #   {% twitter tweet option=value %}
     # {% endfor %}
+    let(:arguments) { "tweet" }
+    let(:context) { jekyll_context_with(arguments, params) }
+    let(:params) { "https://twitter.com/twitter_user/status/12345" }
 
     subject { described_class.new(nil, arguments, nil) }
   end
@@ -258,6 +262,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
       let(:context) { empty_jekyll_context }
       let(:params) { "" }
     end
+
     it_behaves_like "it uses a cached response"
 
     context "without cached response" do
@@ -274,6 +279,160 @@ RSpec.describe TwitterJekyll::TwitterTag do
         subject.render(context)
 
         expect(TwitterJekyll::ApiRequest).to have_received(:new).with("https://twitter.com/twitter_user/status/12345", {})
+      end
+
+      context "with options" do
+        let(:arguments) { "page.tweet align=left width=400" }
+        let(:context) { jekyll_context_with("page.tweet", params) }
+        let(:params) { "https://twitter.com/twitter_user/status/12345" }
+
+        it "passes options to api" do
+          api_client = api_client_double
+          allow(api_client).to receive(:fetch).and_return({})
+          allow(TwitterJekyll::ApiClient).to receive(:new).and_return(api_client)
+          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", {"align"=>"left", "width"=>"400"}).and_call_original
+          allow(cache).to receive(:write)
+
+          subject = described_class.new(nil, arguments, nil)
+          subject.render(context)
+
+          expect(TwitterJekyll::ApiRequest).to have_received(:new)
+              .with("https://twitter.com/twitter_user/status/12345", {"align"=>"left", "width"=>"400"})
+        end
+      end
+
+      it_behaves_like "it handles api responses"
+    end
+  end
+
+  describe "output from usage in a loop with a local var" do
+    include_context "called in a loop with a local var"
+
+    it_behaves_like "it does not allow empty arguments" do
+      let(:arguments) { "tweet" }
+      let(:context) { empty_jekyll_context }
+      let(:params) { "" }
+    end
+
+    it_behaves_like "it uses a cached response"
+
+    context "without cached response" do
+      include_context "without cached response"
+
+      it "uses correct twitter url" do
+        api_client = api_client_double
+        allow(api_client).to receive(:fetch).and_return({})
+        allow(TwitterJekyll::ApiClient).to receive(:new).and_return(api_client)
+        allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", {}).and_call_original
+        allow(cache).to receive(:write)
+
+        subject = described_class.new(nil, arguments, nil)
+        subject.render(context)
+
+        expect(TwitterJekyll::ApiRequest).to have_received(:new).with("https://twitter.com/twitter_user/status/12345", {})
+      end
+
+      it "handles many contexts passed to same instance" do
+        api_client = api_client_double
+        allow(api_client).to receive(:fetch).and_return({})
+        allow(TwitterJekyll::ApiClient).to receive(:new).and_return(api_client)
+        allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/first_url", {}).and_call_original
+        allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/second_url", {}).and_call_original
+        allow(cache).to receive(:write)
+
+        context = double("context", registers: { site: double(config: {}) }).tap do |c|
+          allow(c).to receive(:[]).with(arguments).and_return(
+            "https://twitter.com/twitter_user/status/first_url",
+            "https://twitter.com/twitter_user/status/second_url"
+          )
+        end
+
+        subject = described_class.new(nil, arguments, nil)
+        subject.render(context)
+        subject.render(context)
+
+        expect(TwitterJekyll::ApiRequest).to have_received(:new).with("https://twitter.com/twitter_user/status/first_url", {})
+        expect(TwitterJekyll::ApiRequest).to have_received(:new).with("https://twitter.com/twitter_user/status/second_url", {})
+      end
+
+      context "with options" do
+        let(:arguments) { "tweet align=middle width=500" }
+        let(:context) { jekyll_context_with("tweet", params) }
+        let(:params) { "https://twitter.com/twitter_user/status/12345" }
+
+        it "passes options to api" do
+          api_client = api_client_double
+          allow(api_client).to receive(:fetch).and_return({})
+          allow(TwitterJekyll::ApiClient).to receive(:new).and_return(api_client)
+          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", {"align"=>"middle", "width"=>"500"}).and_call_original
+          allow(cache).to receive(:write)
+
+          subject = described_class.new(nil, arguments, nil)
+          subject.render(context)
+
+          expect(TwitterJekyll::ApiRequest).to have_received(:new)
+              .with("https://twitter.com/twitter_user/status/12345", {"align"=>"middle", "width"=>"500"})
+        end
+      end
+
+      it_behaves_like "it handles api responses"
+    end
+  end
+
+  describe "parsing api secrets" do
+    include_context "called with url"
+    include_context "without cached response"
+
+    before do
+      stub_api_request(status: 200, body: api_response_hash.to_json, headers: {})
+    end
+
+    context "with api secrets provided by ENV" do
+      let(:context) { double("context", registers: { site: double(config: {}) }) }
+      before do
+        stub_const("ENV", "TWITTER_CONSUMER_KEY" => "consumer_key",
+                          "TWITTER_CONSUMER_SECRET" => "consumer_secret",
+                          "TWITTER_ACCESS_TOKEN" => "access_token",
+                          "TWITTER_ACCESS_TOKEN_SECRET" => "access_token_secret")
+      end
+
+      it "warns of deprecation" do
+        expect do
+          tag = described_class.new(nil, arguments, nil)
+          tag.render(context)
+        end.to output(/Found Twitter API keys in ENV, this library does not require these keys anymore/).to_stderr
+      end
+    end
+
+    context "with api secrets provided by Jekyll config" do
+      let(:context) do
+        api_secrets = %w(consumer_key consumer_secret access_token access_token_secret)
+                      .each_with_object({}) { |secret, h| h[secret] = secret }
+        double("context", registers:
+          { site: double(config: { "twitter" => api_secrets }) })
+      end
+      before do
+        stub_const("ENV", {})
+      end
+
+      it "warns of deprecation" do
+        expect do
+          tag = described_class.new(nil, arguments, nil)
+          tag.render(context)
+        end.to output(/Found Twitter API keys in Jekyll _config.yml, this library does not require these keys anymore/).to_stderr
+      end
+    end
+
+    context "with no api secrets provided" do
+      let(:context) { empty_jekyll_context }
+      before do
+        stub_const("ENV", {})
+      end
+
+      it "does not warn" do
+        expect do
+          subject.render(context)
+        end.to_not output.to_stderr
       end
     end
   end
