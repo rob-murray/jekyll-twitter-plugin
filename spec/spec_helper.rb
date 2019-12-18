@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "webmock/rspec"
 require "support/jekyll_template"
 require "jekyll-twitter-plugin"

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 RSpec.describe TwitterJekyll::ApiRequest do
   subject(:api_request) { described_class.new(url, params) }
   let(:url) { "https://twitter.com/twitter_user/status/12345" }
@@ -23,7 +24,7 @@ RSpec.describe TwitterJekyll::ApiRequest do
       let(:params) { { align: "right" } }
 
       it "has encoded query params" do
-        expect(URI.decode_www_form(uri.query)).to match_array [["url", url], %w(align right)]
+        expect(URI.decode_www_form(uri.query)).to match_array [["url", url], %w[align right]]
       end
     end
 

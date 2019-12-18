@@ -194,7 +194,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
           api_client = api_client_double
           allow(api_client).to receive(:fetch).and_return({})
           allow(TwitterJekyll::ApiClient).to receive(:new).and_return(api_client)
-          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", {"align"=>"right", "width"=>"350"}).and_call_original
+          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", "align" => "right", "width" => "350").and_call_original
           allow(cache).to receive(:write)
 
           subject = described_class.new(nil, arguments, nil)
@@ -202,7 +202,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
           subject.render(context)
 
           expect(TwitterJekyll::ApiRequest).to have_received(:new)
-              .with("https://twitter.com/twitter_user/status/12345", {"align"=>"right", "width"=>"350"})
+            .with("https://twitter.com/twitter_user/status/12345", "align" => "right", "width" => "350")
         end
       end
 
@@ -239,14 +239,14 @@ RSpec.describe TwitterJekyll::TwitterTag do
           api_client = api_client_double
           allow(api_client).to receive(:fetch).and_return({})
           allow(TwitterJekyll::ApiClient).to receive(:new).and_return(api_client)
-          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", {"align"=>"right", "width"=>"350"}).and_call_original
+          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", "align" => "right", "width" => "350").and_call_original
           allow(cache).to receive(:write)
 
           subject = described_class.new(nil, arguments, nil)
           subject.render(context)
 
           expect(TwitterJekyll::ApiRequest).to have_received(:new)
-              .with("https://twitter.com/twitter_user/status/12345", {"align"=>"right", "width"=>"350"})
+            .with("https://twitter.com/twitter_user/status/12345", "align" => "right", "width" => "350")
         end
       end
 
@@ -290,14 +290,14 @@ RSpec.describe TwitterJekyll::TwitterTag do
           api_client = api_client_double
           allow(api_client).to receive(:fetch).and_return({})
           allow(TwitterJekyll::ApiClient).to receive(:new).and_return(api_client)
-          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", {"align"=>"left", "width"=>"400"}).and_call_original
+          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", "align" => "left", "width" => "400").and_call_original
           allow(cache).to receive(:write)
 
           subject = described_class.new(nil, arguments, nil)
           subject.render(context)
 
           expect(TwitterJekyll::ApiRequest).to have_received(:new)
-              .with("https://twitter.com/twitter_user/status/12345", {"align"=>"left", "width"=>"400"})
+            .with("https://twitter.com/twitter_user/status/12345", "align" => "left", "width" => "400")
         end
       end
 
@@ -364,14 +364,14 @@ RSpec.describe TwitterJekyll::TwitterTag do
           api_client = api_client_double
           allow(api_client).to receive(:fetch).and_return({})
           allow(TwitterJekyll::ApiClient).to receive(:new).and_return(api_client)
-          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", {"align"=>"middle", "width"=>"500"}).and_call_original
+          allow(TwitterJekyll::ApiRequest).to receive(:new).with("https://twitter.com/twitter_user/status/12345", "align" => "middle", "width" => "500").and_call_original
           allow(cache).to receive(:write)
 
           subject = described_class.new(nil, arguments, nil)
           subject.render(context)
 
           expect(TwitterJekyll::ApiRequest).to have_received(:new)
-              .with("https://twitter.com/twitter_user/status/12345", {"align"=>"middle", "width"=>"500"})
+            .with("https://twitter.com/twitter_user/status/12345", "align" => "middle", "width" => "500")
         end
       end
 
@@ -406,7 +406,7 @@ RSpec.describe TwitterJekyll::TwitterTag do
 
     context "with api secrets provided by Jekyll config" do
       let(:context) do
-        api_secrets = %w(consumer_key consumer_secret access_token access_token_secret)
+        api_secrets = %w[consumer_key consumer_secret access_token access_token_secret]
                       .each_with_object({}) { |secret, h| h[secret] = secret }
         double("context", registers:
           { site: double(config: { "twitter" => api_secrets }) })
