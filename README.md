@@ -106,8 +106,7 @@ To use the plugin, in your source content use the tag `twitter` and then pass ad
 
 #### Custom variables
 
-In addition to passing the Twitter URL directly to the plugin, you can also use [Front Matter](https://jekyllrb.com/docs/front-matter/) to store URLs as page variables. This allows you to re-use view configuration or partials and configure a Twitter URL separately to page content.
-
+In addition to passing the Twitter URL directly to the plugin, you can also use [Front Matter](https://jekyllrb.com/docs/front-matter/) to store URLs as page variables. This allows you to re-use view configuration or partials by keeping the Twitter URL(s) separate to page content.
 
 ```liquid
 ---
