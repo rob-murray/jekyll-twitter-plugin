@@ -98,12 +98,31 @@ To use the plugin, in your source content use the tag `twitter` and then pass ad
 {% twitter https://twitter.com/jekyllrb maxwidth=500 limit=5 %}
 ```
 
-| Argument | Required? | Description |
-|---|---|---|
-| `plugin_type` | Yes | Either `twitter` or `twitternocache` (same as `twitter` but does not cache api responses) |
-| `twitter_url` | Yes | The Twitter URL to use, check below for supported URLs. |
-| `*options` | No | Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters. |
+| Argument      | Required? | Description                                                                                                                   |
+| ---           | ---       | ---                                                                                                                           |
+| `plugin_type` | Yes       | Either `twitter` or `twitternocache` (same as `twitter` but does not cache api responses)                                     |
+| `twitter_url` | Yes       | The Twitter URL to use, check below for supported URLs.                                                                       |
+| `*options`    | No        | Parameters for the API separated by spaces. Refer below and to respective Twitter API documentation for available parameters. |
 
+#### Custom variables
+
+In addition to passing the Twitter URL directly to the plugin, you can also use [Front Matter](https://jekyllrb.com/docs/front-matter/) to store URLs as page variables. This allows you to re-use view configuration or partials by keeping the Twitter URL(s) separate to page content.
+
+```liquid
+---
+title: My page
+tweets:
+  - https://twitter.com/dhh/status/1162426045405921282
+  - https://twitter.com/rails/status/1205565185739673600
+a_tweet: https://twitter.com/rubygems/status/518821243320287232
+---
+
+{% for tweet in page.tweets %}
+  {% twitter tweet align=right width=350 %}
+{% endfor %}
+
+{% twitter page.a_tweet %}
+```
 
 ### Supported Twitter URLs
 

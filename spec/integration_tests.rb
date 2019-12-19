@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 # Basic integration example - run code to produce html output
 #
-# * Requires .env populated with valid Twitter API creds.
-#
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require_relative "./support/jekyll_template"
 require "jekyll-twitter-plugin"
@@ -53,9 +51,9 @@ class TwitterRenderer
 
   attr_reader :options, :jekyll_context
 
-  def render_twitter_tag(params)
-    say_with_colour "Fetching with params: #{params}", :yellow
-    TwitterJekyll::TwitterTag.new(nil, params, nil).render(jekyll_context)
+  def render_twitter_tag(option)
+    say_with_colour "Fetching with option: #{option}", :yellow
+    TwitterJekyll::TwitterTag.new(nil, option, nil).render(jekyll_context)
   end
 
   def template
@@ -75,9 +73,9 @@ class TwitterRenderer
 end
 
 def main
-  rederer = TwitterRenderer.new(OPTIONS)
+  renderer = TwitterRenderer.new(OPTIONS)
   File.open(OUTPUT_FILENAME, "w") do |f|
-    f.write rederer.render
+    f.write renderer.render
   end
 end
 

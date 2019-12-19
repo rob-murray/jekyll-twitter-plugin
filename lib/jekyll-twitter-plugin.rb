@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "fileutils"
 require "net/http"
 require "uri"
@@ -30,23 +31,22 @@ module TwitterJekyll
     end
 
     def read(key)
-      file_to_read = cache_file(cache_filename(key))
+      file_to_read = cache_file(key)
       JSON.parse(File.read(file_to_read)) if File.exist?(file_to_read)
     end
 
     def write(key, data)
-      file_to_write = cache_file(cache_filename(key))
-      data_to_write = JSON.generate data.to_h
+      file_to_write = cache_file(key)
 
       File.open(file_to_write, "w") do |f|
-        f.write(data_to_write)
+        f.write(JSON.generate(data.to_h))
       end
     end
 
     private
 
-    def cache_file(filename)
-      File.join(@cache_folder, filename)
+    def cache_file(key)
+      File.join(@cache_folder, cache_filename(key))
     end
 
     def cache_filename(cache_key)
@@ -77,7 +77,6 @@ module TwitterJekyll
       end
 
       handle_response(api_request, response)
-
     rescue Timeout::Error => e
       ErrorResponse.new(api_request, e.class.name).to_h
     end
@@ -144,11 +143,22 @@ module TwitterJekyll
     ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>".freeze
     OEMBED_ARG      = "oembed".freeze
 
+    URL_OR_STRING_PARAM = /^("|')?(http|https):\/\//i
+
     attr_writer :cache # for testing
 
     def initialize(_name, params, _tokens)
       super
-      @api_request = parse_params(params)
+
+      # Test if first arg is a URL or starts with oembed,
+      # otherwise its a Jekyll variable. TODO: remove oembed after deprecation cycle
+      if params =~ URL_OR_STRING_PARAM || params.to_s.start_with?(OEMBED_ARG)
+        @fetch_from_context = false
+        @api_request = parse_params_from_string(params)
+      else
+        @fetch_from_context = true
+        @variable_params = normalize_string_params(params)
+      end
     end
 
     # Class that implements caching strategy
@@ -160,12 +170,22 @@ module TwitterJekyll
     # Return html string for Jekyll engine
     # @api public
     def render(context)
+      if fetch_from_context?
+        variable_name, *params = @variable_params
+        tweet_url = context[variable_name]
+        @api_request = parse_params_from_array [tweet_url, *params]
+      end
+
       api_secrets_deprecation_warning(context) # TODO: remove after deprecation cycle
       response = cached_response || live_response
       html_output_for(response)
     end
 
     private
+
+    def fetch_from_context?
+      @fetch_from_context
+    end
 
     def cache
       @cache ||= self.class.cache_klass.new("./.tweet-cache")
@@ -199,11 +219,19 @@ module TwitterJekyll
       build_response(response) unless response.nil?
     end
 
+    def parse_params_from_string(str)
+      args = normalize_string_params(str)
+      parse_params(args)
+    end
+
+    def parse_params_from_array(arr)
+      parse_params(arr)
+    end
+
     # Return an `ApiRequest` with the url and arguments
     # @api private
-    def parse_params(params)
-      args = params.split(/\s+/).map(&:strip)
-      invalid_args!(args) unless args.any?
+    def parse_params(args)
+      invalid_args!(args) unless args.compact.any?
 
       if args[0].to_s == OEMBED_ARG # TODO: remove after deprecation cycle
         arguments_deprecation_warning(args)
@@ -211,25 +239,31 @@ module TwitterJekyll
       end
 
       url, *api_args = args
-      ApiRequest.new(url, parse_args(api_args))
+      ApiRequest.new(url, hash_from_args(api_args))
+    end
+
+    # Take input arguments, remove quotes & return array of argument values
+    # @api private
+    def normalize_string_params(str)
+      str.to_s.gsub(/"|'/, "").split(/\s+/).map(&:strip)
     end
 
     # Transform 'a=b x=y' tag arguments into { "a" => "b", "x" => "y" }
     # @api private
-    def parse_args(args)
-      args.each_with_object({}) do |arg, params|
+    def hash_from_args(args)
+      args.each_with_object({}) do |arg, results|
         k, v = arg.split("=").map(&:strip)
         if k && v
           v = Regexp.last_match[1] if v =~ /^'(.*)'$/
-          params[k] = v
+          results[k] = v
         end
       end
     end
 
     # Format a response hash
     # @api private
-    def build_response(h)
-      OpenStruct.new(h)
+    def build_response(response_hash)
+      OpenStruct.new(response_hash)
     end
 
     # TODO: remove after deprecation cycle
