@@ -136,11 +136,15 @@ The Twitter URLs that are supported depend on Twitter. We pass the url and all p
 
 ##### Timeline:
 
+* [https://developer.twitter.com/en/docs/twitter-for-websites/timelines/overview](https://developer.twitter.com/en/docs/twitter-for-websites/timelines/overview)
 * [https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/oembed-api](https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/oembed-api)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/parameter-reference](https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/parameter-reference)
 
 ##### Moments:
 
 * [https://developer.twitter.com/en/docs/twitter-for-websites/moments/overview](https://developer.twitter.com/en/docs/twitter-for-websites/moments/overview)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/moments/guides/oembed-api](https://developer.twitter.com/en/docs/twitter-for-websites/moments/guides/oembed-api)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/moments/guides/parameter-reference0](https://developer.twitter.com/en/docs/twitter-for-websites/moments/guides/parameter-reference0)
 
 ### Customisation
 
