@@ -130,17 +130,21 @@ The Twitter URLs that are supported depend on Twitter. We pass the url and all p
 
 ##### Tweet:
 
-* [https://dev.twitter.com/web/overview](https://dev.twitter.com/web/overview)
-* [https://dev.twitter.com/rest/reference/get/statuses/oembed](https://dev.twitter.com/rest/reference/get/statuses/oembed)
-* [https://dev.twitter.com/web/embedded-tweets/parameters](https://dev.twitter.com/web/embedded-tweets/parameters)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/overview](https://developer.twitter.com/en/docs/twitter-for-websites/overview)
+* [https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/get-statuses-oembed](https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/get-statuses-oembed)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/embedded-tweets/guides/embedded-tweet-parameter-reference](https://developer.twitter.com/en/docs/twitter-for-websites/embedded-tweets/guides/embedded-tweet-parameter-reference)
 
 ##### Timeline:
 
-* [https://dev.twitter.com/web/embedded-timelines/oembed](https://dev.twitter.com/web/embedded-timelines/oembed)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/timelines/overview](https://developer.twitter.com/en/docs/twitter-for-websites/timelines/overview)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/oembed-api](https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/oembed-api)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/parameter-reference](https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/parameter-reference)
 
 ##### Moments:
 
-* [https://dev.twitter.com/web/embedded-moments/oembed](https://dev.twitter.com/web/embedded-moments/oembed)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/moments/overview](https://developer.twitter.com/en/docs/twitter-for-websites/moments/overview)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/moments/guides/oembed-api](https://developer.twitter.com/en/docs/twitter-for-websites/moments/guides/oembed-api)
+* [https://developer.twitter.com/en/docs/twitter-for-websites/moments/guides/parameter-reference0](https://developer.twitter.com/en/docs/twitter-for-websites/moments/guides/parameter-reference0)
 
 ### Customisation
 
