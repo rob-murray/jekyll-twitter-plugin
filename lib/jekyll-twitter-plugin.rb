@@ -12,14 +12,14 @@ require "digest"
 # https://github.com/rob-murray/jekyll-twitter-plugin
 #
 module TwitterJekyll
-  VERSION = "2.0.0".freeze
-  REFER_TO_README   = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage.".freeze
-  LIBRARY_VERSION   = "jekyll-twitter-plugin-v#{VERSION}".freeze
+  VERSION = "2.0.0"
+  REFER_TO_README   = "Please see 'https://github.com/rob-murray/jekyll-twitter-plugin' for usage."
+  LIBRARY_VERSION   = "jekyll-twitter-plugin-v#{VERSION}"
   REQUEST_HEADERS   = { "User-Agent" => LIBRARY_VERSION }.freeze
 
   # TODO: remove after deprecation cycle
-  CONTEXT_API_KEYS  = %w(consumer_key consumer_secret access_token access_token_secret).freeze
-  ENV_API_KEYS      = %w(TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET).freeze
+  CONTEXT_API_KEYS  = %w[consumer_key consumer_secret access_token access_token_secret].freeze
+  ENV_API_KEYS      = %w[TWITTER_CONSUMER_KEY TWITTER_CONSUMER_SECRET TWITTER_ACCESS_TOKEN TWITTER_ACCESS_TOKEN_SECRET].freeze
 
   # Cache class that writes to filesystem
   # TODO: Do i really need to cache?
@@ -107,7 +107,7 @@ module TwitterJekyll
   # Holds the URI were going to request with any parameters
   # @api private
   ApiRequest = Struct.new(:entity_url, :params) do
-    TWITTER_API_URL = "https://publish.twitter.com/oembed".freeze
+    TWITTER_API_URL = "https://publish.twitter.com/oembed"
 
     # Always;
     def ssl?
@@ -140,10 +140,10 @@ module TwitterJekyll
   # Class to respond to Jekyll tag; entry point to library
   # @api public
   class TwitterTag < Liquid::Tag
-    ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>".freeze
-    OEMBED_ARG      = "oembed".freeze
+    ERROR_BODY_TEXT = "<p>Tweet could not be processed</p>"
+    OEMBED_ARG      = "oembed"
 
-    URL_OR_STRING_PARAM = /^("|')?(http|https):\/\//i
+    URL_OR_STRING_PARAM = %r{^("|')?(http|https)://}i
 
     attr_writer :cache # for testing
 
@@ -198,7 +198,8 @@ module TwitterJekyll
     # Return Twitter response or error html
     # @api private
     def html_output_for(response)
-      body = (response.html if response) || ERROR_BODY_TEXT
+      body = response&.html || ERROR_BODY_TEXT
+      body = body.delete("\n")
 
       "<div class='jekyll-twitter-plugin'>#{body}</div>"
     end
